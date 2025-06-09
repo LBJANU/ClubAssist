@@ -1,6 +1,6 @@
 # ClubAssist - University of Michigan Club Interview Assistant
 
-ClubAssist is a Django-based web application that helps students prepare for club interviews at the University of Michigan using AI assistance.
+ClubAssist is a Django-based web application that helps students prepare for club interviews at the University of Michigan using AI assistance. This is probably going to be the greatest thing you ever see
 
 ## Features
 - AI-powered interview preparation
