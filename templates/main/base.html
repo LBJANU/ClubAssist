@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ClubAssist{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --michigan-blue: #00274C;
+            --michigan-maize: #FFCB05;
+        }
+        .michigan-blue { background-color: var(--michigan-blue); }
+        .michigan-maize { background-color: var(--michigan-maize); }
+        .text-michigan-blue { color: var(--michigan-blue); }
+        .text-michigan-maize { color: var(--michigan-maize); }
+        .hover-michigan-maize:hover { background-color: var(--michigan-maize); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="michigan-blue text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-michigan-maize">ClubAssist</a>
+            <div class="space-x-4">
+                <a href="#" class="hover:text-michigan-maize">Home</a>
+                <a href="#" class="hover:text-michigan-maize">About</a>
+                <a href="#" class="hover:text-michigan-maize">Services</a>
+                <a href="#" class="bg-michigan-maize text-michigan-blue px-4 py-2 rounded-lg hover:bg-opacity-90">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="michigan-blue text-white py-4 mt-auto">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 ClubAssist - University of Michigan</p>
+        </div>
+    </footer>
+</body>
+</html> 
