@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-16">
+    <div class="max-w-xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h2 class="text-3xl font-bold text-michigan-blue mb-6 text-center">Login</h2>
+        
+        <form method="POST" action="{% url 'users:login' %}">
+            {% csrf_token %}
+            
+            {% if error %}
+             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                Invalid username or password
+            </div>
+            {% endif %}
+            
+            <div class="mb-4">
+                <label for="id_username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                <input type="text" name="username" id="id_username" required
+                    class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg">
+            </div>
+            
+            <div class="mb-6">
+                <label for="id_password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                <input type="password" name="password" id="id_password" required
+                    class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg">
+            </div>
+            
+            <div class="flex items-center justify-center">
+                <button type="submit" 
+                    class="michigan-blue text-white font-bold py-3 px-8 rounded-lg text-lg focus:outline-none focus:shadow-outline hover:opacity-90">
+                    Sign In
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-gray-600">Need an account? <a href="{% url 'users:register' %}" class="text-michigan-blue hover:underline">Register here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %} 
