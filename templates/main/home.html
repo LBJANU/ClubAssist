@@ -1,37 +1,35 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-16">
+<div class="container mx-auto px-4 py-32 flex flex-col items-center justify-center min-h-[70vh]">
     <!-- Hero Section -->
     <div class="text-center mb-16">
-        <h1 class="text-5xl font-bold text-michigan-blue mb-6">Welcome to ClubAssist</h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Your AI-powered interview preparation assistant for University of Michigan club applications. 
-            Get ready to ace your club interviews with personalized practice and feedback.
+        <h1 class="text-5xl md:text-6xl font-black text-michigan-blue mb-6 leading-tight">
+            Stop <span class="bg-yellow-200 px-2 rounded">gambling</span><br>with your club interviews
+        </h1>
+        <p class="text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+            The end of bad interviews is <span class="underline text-michigan-blue">here</span>.<br>
+            Get ready to ace your University of Michigan club interviews with personalized, AI-powered practice and feedback. Dream numbers below.
         </p>
-    </div>
-
-    <!-- Features Section -->
-    <div class="grid md:grid-cols-3 gap-8 mt-12">
-        <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h3 class="text-xl font-semibold text-michigan-blue mb-4">AI-Powered Practice</h3>
-            <p class="text-gray-600">Get realistic interview practice with our AI assistant tailored to specific clubs.</p>
-        </div>
-        <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h3 class="text-xl font-semibold text-michigan-blue mb-4">Personalized Feedback</h3>
-            <p class="text-gray-600">Receive detailed feedback on your responses to improve your interview skills.</p>
-        </div>
-        <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h3 class="text-xl font-semibold text-michigan-blue mb-4">Club-Specific Prep</h3>
-            <p class="text-gray-600">Access interview questions and tips specific to the clubs you're interested in.</p>
-        </div>
-    </div>
-
-    <!-- CTA Section -->
-    <div class="text-center mt-16">
-        <a href="#" class="michigan-blue text-white px-8 py-4 rounded-lg text-xl font-semibold hover:opacity-90 inline-block">
+        <a href="#" class="mt-6 inline-block bg-michigan-blue text-white px-8 py-4 rounded-lg text-xl font-semibold hover:opacity-90 transition">
             Start Practicing Now
         </a>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-20 w-full max-w-4xl">
+        <div class="text-center">
+            <div class="text-3xl font-bold text-michigan-blue mb-2">100+</div>
+            <div class="text-gray-500 text-lg">Clubs Supported</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-michigan-blue mb-2">5k+</div>
+            <div class="text-gray-500 text-lg">Practice Sessions</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-michigan-blue mb-2">98%</div>
+            <div class="text-gray-500 text-lg">User Satisfaction</div>
+        </div>
     </div>
 </div>
 {% endblock %} 

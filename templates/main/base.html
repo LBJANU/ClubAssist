@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ClubAssist{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        html, body { font-family: 'Inter', sans-serif; }
         :root {
             --michigan-blue: #00274C;
             --michigan-maize: #FFCB05;
@@ -17,19 +19,25 @@
         .hover-michigan-maize:hover { background-color: var(--michigan-maize); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-white">
     <!-- Navigation -->
-    <nav class="michigan-blue text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-michigan-maize">ClubAssist</a>
-            <div class="space-x-4">
-                <a href="#" class="hover:text-michigan-maize">Home</a>
-                <a href="#" class="hover:text-michigan-maize">About</a>
-                <a href="#" class="hover:text-michigan-maize">Services</a>
-                <a href="#" class="bg-michigan-maize text-michigan-blue px-4 py-2 rounded-lg hover:bg-opacity-90">Login</a>
-            </div>
+    <nav class="bg-white shadow-sm py-3">
+        <div class="container mx-auto flex items-center justify-between px-6">
+            <a href="/" class="text-2xl font-extrabold text-michigan-blue tracking-tight">ClubAssist</a>
+            <a href="/users/login/" class="border border-michigan-blue text-michigan-blue px-5 py-2 rounded-lg font-semibold hover:bg-michigan-blue hover:text-white transition">Login</a>
         </div>
     </nav>
+
+    <!-- This is the messages thing (output from views) it is not in use currently doubt we'll use it anyway but fuck it -->
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-green-100 border-green-400 text-green-700{% endif %} border px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main class="flex-grow">
