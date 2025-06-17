@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from .models import Club
+from django.db.models import F
+from .models import Club, ClubInterested
 
 # Create your views here.
 
@@ -26,13 +27,30 @@ def toggle_interest(request, club_id):
         return HttpResponse('Please log in to mark clubs as interesting', status=401)
     
     club = get_object_or_404(Club, id=club_id)
-    # Here you would implement the logic to toggle interest
-    # For example, using a through model or a many-to-many relationship
     
-    # For now, we'll just return a simple response
+    # Try to get existing object first
+    try:
+        club_interested = ClubInterested.objects.get(club=club, user=request.user)
+        # Toggle existing value
+        new_value = not club_interested.interested
+    except ClubInterested.DoesNotExist:
+        # Create new with default True
+        new_value = True
+    
+    # Use update_or_create with the calculated value
+    club_interested, created = ClubInterested.objects.update_or_create(
+        club=club,
+        user=request.user,
+        defaults={'interested': new_value}
+    )
+    
+    # Return updated button HTML
+    icon_class = "fas fa-heart" if club_interested.interested else "far fa-heart"
+    button_text = "Interested" if club_interested.interested else "Not Interested"
+    
     return HttpResponse(
         f'<button class="text-blue-500 hover:text-blue-700 transition-colors" '
-        f'hx-post="{club_id}" hx-swap="outerHTML">'
-        f'<i class="fas fa-heart"></i> Interested'
+        f'hx-post="/clubs/{club.id}/toggle-interest/" hx-swap="outerHTML">'
+        f'<i class="{icon_class}"></i> {button_text}'
         f'</button>'
     )

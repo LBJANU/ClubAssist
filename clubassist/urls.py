@@ -20,5 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
-    path('users/', include('users.urls')),  # This will make login available at /users/login/
+    path('users/', include('users.urls')),  
+    path('clubs/', include('clubs.urls'))  
 ]
