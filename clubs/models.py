@@ -26,5 +26,5 @@ class ClubInterested(models.Model):
     class Meta:
         unique_together = ('club', 'user')
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.name
