@@ -15,17 +15,30 @@ def club_list(request):
     clubs = clubs.order_by('name')
     club_categories = Club.CATEGORY_CHOICES
     
+    # Initialize empty dictionary
+    user_interests = {}
+    
+    # not sure if user actually needs to be authenticated to see the list (security check tho)
+    if request.user.is_authenticated:
+        # Get all interests for this user and these clubs
+        interests = ClubInterested.objects.filter(
+            user=request.user,
+            club__in=clubs
+        )
+        
+        # Store just the interested boolean value, not the whole object
+        for interest in interests:
+            user_interests[interest.club_id] = interest.interested
+
     context = {
         'clubs': clubs,
         'club_categories': club_categories,
         'selected_category': category,
+        'user_interests': user_interests,
     }
     return render(request, 'clubs/club_list.html', context)
 
 def toggle_interest(request, club_id):
-    if not request.user.is_authenticated:
-        return HttpResponse('Please log in to mark clubs as interesting', status=401)
-    
     club = get_object_or_404(Club, id=club_id)
     
     # Try to get existing object first
@@ -43,14 +56,19 @@ def toggle_interest(request, club_id):
         user=request.user,
         defaults={'interested': new_value}
     )
+
+    context = {
+        'club': club,
+        'club_interested': club_interested.interested,
+    }
+    return render(request, 'clubs/club_interest_button.html', context)
     
-    # Return updated button HTML
-    icon_class = "fas fa-heart" if club_interested.interested else "far fa-heart"
-    button_text = "Interested" if club_interested.interested else "Not Interested"
+    # Return just the button content
+    # icon_class = "fas fa-heart" if club_interested.interested else "far fa-heart"
+    # button_text = "Interested" if club_interested.interested else "Not Interested"
     
-    return HttpResponse(
-        f'<button class="text-blue-500 hover:text-blue-700 transition-colors" '
-        f'hx-post="/clubs/{club.id}/toggle-interest/" hx-swap="outerHTML">'
-        f'<i class="{icon_class}"></i> {button_text}'
-        f'</button>'
-    )
+    # return HttpResponse(
+    #     f'<button class="text-blue-500 hover:text-blue-700 transition-colors">'
+    #     f'<i class="{icon_class}"></i> {button_text}'
+    #     f'</button>'
+    # )
