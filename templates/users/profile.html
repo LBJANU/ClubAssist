@@ -1,0 +1,129 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Profile Dashboard - ClubAssist{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-michigan-blue mb-2">Welcome back, {{ user.username }}!</h1>
+        <p class="text-gray-600">Track your club interview preparation progress</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i class="fas fa-heart text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Interested Clubs</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ interested_clubs.count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i class="fas fa-play text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Started Prep</p>
+                    <p class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-2 bg-yellow-100 rounded-lg">
+                    <i class="fas fa-clock text-yellow-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Hours Practiced</p>
+                    <p class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <i class="fas fa-trophy text-purple-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Success Rate</p>
+                    <p class="text-2xl font-bold text-gray-900">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Chart Placeholder -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Progress Overview</h3>
+        <div class="h-48 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div class="text-center text-gray-500">
+                <i class="fas fa-chart-line text-4xl mb-2"></i>
+                <p>Progress tracking coming soon!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interested Clubs Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Your Interested Clubs</h2>
+            <p class="text-gray-600 mt-1">Start preparing for your club interviews</p>
+        </div>
+        
+        {% if interested_clubs %}
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for club_interest in interested_clubs %}
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ club_interest.club.name }}</h3>
+                                <p class="text-sm text-gray-600 mb-2">{{ club_interest.club.category }}</p>
+                                {% if club_interest.club.description %}
+                                    <p class="text-sm text-gray-700 line-clamp-2">{{ club_interest.club.description }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Interested
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-calendar mr-1"></i>
+                                Added recently
+                            </div>
+                            <button class="bg-michigan-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-michigan-blue/90 transition-colors">
+                                <i class="fas fa-play mr-2"></i>Start Prep
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="p-12 text-center">
+                <div class="text-gray-400 mb-4">
+                    <i class="fas fa-heart text-6xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No interested clubs yet</h3>
+                <p class="text-gray-600 mb-6">Start exploring clubs and mark the ones you're interested in!</p>
+                <a href="{% url 'clubs:club_list' %}" class="inline-flex items-center px-4 py-2 bg-michigan-blue text-white rounded-lg font-medium hover:bg-michigan-blue/90 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Browse Clubs
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
