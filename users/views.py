@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
@@ -30,4 +30,8 @@ def register_view(request):
             context = {'error': True}
             return render(request, 'users/register.html', context)
     return render(request, 'users/register.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('main:home')
 
