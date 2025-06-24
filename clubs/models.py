@@ -17,7 +17,7 @@ class Club(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class ClubInterested(models.Model):
+class ClubUserConnector(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='seen_clubs')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seen_clubs')
     seen_at = models.DateTimeField(auto_now_add=True)

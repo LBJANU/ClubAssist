@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.db.models import F
 from django.contrib.auth.decorators import login_required
-from .models import Club, ClubInterested
+from .models import Club, ClubUserConnector
 
 # Create your views here.
 @login_required
@@ -22,7 +22,7 @@ def club_list(request):
     # not sure if user actually needs to be authenticated to see the list (security check tho)
     if request.user.is_authenticated:
         # Get all interests for this user and these clubs
-        interests = ClubInterested.objects.filter(
+        interests = ClubUserConnector.objects.filter(
             user=request.user,
             club__in=clubs
         )
@@ -45,15 +45,15 @@ def toggle_interest(request, club_id):
     
     # Try to get existing object first
     try:
-        club_interested = ClubInterested.objects.get(club=club, user=request.user)
+        club_interested = ClubUserConnector.objects.get(club=club, user=request.user)
         # Toggle existing value
         new_value = not club_interested.interested
-    except ClubInterested.DoesNotExist:
+    except ClubUserConnector.DoesNotExist:
         # Create new with default True
         new_value = True
     
     # Use update_or_create with the calculated value
-    club_interested, created = ClubInterested.objects.update_or_create(
+    club_interested, created = ClubUserConnector.objects.update_or_create(
         club=club,
         user=request.user,
         defaults={'interested': new_value}

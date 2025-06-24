@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from clubs.models import ClubInterested
+from clubs.models import ClubUserConnector
 
 def login_view(request):
     if request.method == 'POST':
@@ -40,7 +40,7 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     # Get all clubs the user is interested in
-    interested_clubs = ClubInterested.objects.filter(
+    interested_clubs = ClubUserConnector.objects.filter(
         user=request.user,
         interested=True
     ).select_related('club')
