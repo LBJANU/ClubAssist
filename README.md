@@ -13,7 +13,7 @@ ClubAssist is a Django-based web application that helps students prepare for clu
 1. Create a virtual environment:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # This project works with Linux-based OS. If on Windows use WSL feature on VScode
 ```
 
 2. Install dependencies:
@@ -50,6 +50,7 @@ Visit http://localhost:8000 to access the application.
 - `interviews/` - App for managing interviews
 - `users/` - App for user management
 - `ai_assistant/` - App for AI integration
+- `clubs/` - App for showcasing club list and user interests in clubs
 
 ## Contributing
 Please read our contributing guidelines before submitting pull requests.
