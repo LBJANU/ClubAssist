@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.db.models import F
+from django.contrib.auth.decorators import login_required
 from .models import Club, ClubInterested
 
 # Create your views here.
-
+@login_required
 def club_list(request):
     category = request.GET.get('category')
     clubs = Club.objects.all()
@@ -38,6 +39,7 @@ def club_list(request):
     }
     return render(request, 'clubs/club_list.html', context)
 
+@login_required
 def toggle_interest(request, club_id):
     club = get_object_or_404(Club, id=club_id)
     

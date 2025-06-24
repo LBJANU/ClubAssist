@@ -13,7 +13,7 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect('main:home')
+            return redirect('users:profile')
         else:
             context = {'error': True}
             return render(request, 'users/login.html', context)
@@ -27,7 +27,7 @@ def register_view(request):
         try:
             user = User.objects.create_user(username=username, password=password)
             login(request, user)
-            return redirect('main:home')
+            return redirect('users:profile')
         except IntegrityError:
             context = {'error': True}
             return render(request, 'users/register.html', context)
