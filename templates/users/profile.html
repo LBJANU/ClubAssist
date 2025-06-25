@@ -104,9 +104,9 @@
                                 <i class="fas fa-calendar mr-1"></i>
                                 Added recently
                             </div>
-                            <button class="bg-michigan-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-michigan-blue/90 transition-colors">
+                            <a href="{% url 'clubs:prep' club_interest.club.id %}" class="bg-michigan-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-michigan-blue/90 transition-colors">
                                 <i class="fas fa-play mr-2"></i>Start Prep
-                            </button>
+                            </a>
                         </div>
                     </div>
                     {% endfor %}

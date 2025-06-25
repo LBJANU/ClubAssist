@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'main',
     'users',
     'clubs',
+    'interviews',
 ]
 
 MIDDLEWARE = [
