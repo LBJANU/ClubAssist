@@ -74,7 +74,9 @@
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
-                                <a href="#" class="ml-2 bg-michigan-blue text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-michigan-blue/90 transition-colors">Practice</a>
+                                <a href="{% url 'clubs:practice_question' club.id question.id %}" class="ml-2 bg-michigan-blue text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-michigan-blue/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-michigan-blue focus:ring-offset-2">
+                                    <i class="fas fa-pen mr-1"></i>Practice
+                                </a>
                             </div>
                         </div>
                     {% endfor %}

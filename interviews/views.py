@@ -14,7 +14,8 @@ def club_prep(request, club_id):
     # Get user's progress on these questions
     user_progress = UserInterviewProgress.objects.filter(
         user=request.user,
-        question__in=questions
+        question__in=questions,
+        club=club
     )
     
     # Calculate progress stats
@@ -39,3 +40,32 @@ def club_prep(request, club_id):
     }
 
     return render(request, 'interviews/prep.html', context)
+
+@login_required
+def practice_question(request, club_id, question_id):
+    club = get_object_or_404(Club, id=club_id)
+    question = get_object_or_404(InterviewQuestion, id=question_id)
+
+    # we don't need to do update because if its attempted we can't "unattempt" it
+    question_progress, _ = UserInterviewProgress.objects.get_or_create(
+        user=request.user, 
+        question=question, 
+        club=club,
+        defaults={'attempted': True})
+    
+    if request.method == 'POST':
+        user_answer = request.POST.get('user_answer', '').strip()
+        notes = request.POST.get('notes', '').strip()
+
+        question_progress.user_answer = user_answer
+        question_progress.completed = True
+        question_progress.notes = notes
+
+        question_progress.save()
+
+    context = {
+        'club': club,
+        'question': question,
+        'question_progress': question_progress,
+    }
+    return render(request, 'interviews/practice.html', context)

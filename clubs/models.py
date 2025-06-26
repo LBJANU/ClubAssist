@@ -30,5 +30,5 @@ class ClubUserConnector(models.Model):
     class Meta:
         unique_together = ('club', 'user')
 
-    # def __str__(self):
-    #     return self.name
+    def __str__(self):
+        return f"{self.user.username} - {self.club.name} (Interested: {self.interested}, Started Prep: {self.started_prep})"

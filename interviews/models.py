@@ -54,6 +54,7 @@ class ClubQuestionConnector(models.Model):
 class UserInterviewProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_progress')
     question = models.ForeignKey(InterviewQuestion, on_delete=models.CASCADE, related_name='user_attempts')
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='interview_progress', null=True, blank=True)
     
     # Progress tracking
     attempted = models.BooleanField(default=False)
@@ -70,11 +71,11 @@ class UserInterviewProgress(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        unique_together = ('user', 'question')
+        unique_together = ('user', 'question', 'club')
         ordering = ['-attempted_at']
     
     def __str__(self):
-        return f"{self.user.username} - {self.question.title}"
+        return f"{self.user.username} - {self.question.title} ({self.club.name})"
 
 # keep foreign key to club because this is a session that a user does for a club. Club intent is must. 
 class InterviewSession(models.Model):
