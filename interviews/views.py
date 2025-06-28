@@ -56,11 +56,22 @@ def practice_question(request, club_id, question_id):
     if request.method == 'POST':
         user_answer = request.POST.get('user_answer', '').strip()
         notes = request.POST.get('notes', '').strip()
-
+        
+        # Handle audio file processing (if provided)
+        if 'response_audio' in request.FILES:
+            audio_file = request.FILES['response_audio']
+            
+            # TODO: Send audio to AssemblyAI for transcription
+            # transcription = send_to_assemblyai(audio_file)
+            # user_answer = transcription if transcription else user_answer
+            
+            # For now, just use the text answer if no transcription
+            if not user_answer:
+                user_answer = "[Audio recorded - transcription pending]"
+        
         question_progress.user_answer = user_answer
         question_progress.completed = True
         question_progress.notes = notes
-
         question_progress.save()
 
     context = {
