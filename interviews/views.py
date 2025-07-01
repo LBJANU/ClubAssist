@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from clubs.models import Club
 from .models import InterviewQuestion, UserInterviewProgress, InterviewSession
+from .utils import transcribe_audio_file
 
 # Create your views here.
 @login_required
@@ -61,13 +63,22 @@ def practice_question(request, club_id, question_id):
         if 'response_audio' in request.FILES:
             audio_file = request.FILES['response_audio']
             
-            # TODO: Send audio to AssemblyAI for transcription
-            # transcription = send_to_assemblyai(audio_file)
-            # user_answer = transcription if transcription else user_answer
+            # Transcribe the audio using AssemblyAI
+            transcription_result = transcribe_audio_file(audio_file)
             
-            # For now, just use the text answer if no transcription
-            if not user_answer:
-                user_answer = "[Audio recorded - transcription pending]"
+            if transcription_result['success']:
+                # Use the transcribed text as the answer
+                transcribed_text = transcription_result['text'].strip()
+                if transcribed_text:
+                    user_answer = transcribed_text
+                    messages.success(request, 'Audio successfully transcribed!')
+                else:
+                    messages.warning(request, 'Audio transcribed but no text was detected.')
+            else:
+                # Transcription failed, use text answer if provided
+                if not user_answer:
+                    user_answer = "[Audio transcription failed]"
+                messages.error(request, f'Transcription failed: {transcription_result["error"]}')
         
         question_progress.user_answer = user_answer
         question_progress.completed = True
