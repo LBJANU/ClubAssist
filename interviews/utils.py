@@ -3,6 +3,100 @@ import os
 from django.conf import settings
 import tempfile
 
+def analyze_speech_metrics(transcript, words_data):
+    """
+    Analyze speech patterns from transcript data.
+    
+    Returns:
+        dict: Analysis metrics including filler words, pauses, speaking pace
+    """
+    analysis = {
+        'filler_words': {
+            'total_count': 0,
+            'words_per_minute': 0,
+            'common_fillers': {},
+            'density': 0.0
+        },
+        'pauses': {
+            'total_pauses': 0,
+            'long_pauses': 0,  # >0.5 seconds
+            'average_pause_duration': 0.0,
+            'pause_locations': []
+        },
+        'speaking_pace': {
+            'words_per_minute': 0,
+            'speaking_duration': 0.0,
+            'pace_consistency': 'unknown'
+        },
+        'overall_metrics': {
+            'total_words': 0,
+            'speaking_time': 0.0,
+            'silence_time': 0.0
+        }
+    }
+    
+    if not words_data:
+        return analysis
+    
+    # Calculate speaking duration and total words
+    if words_data:
+        first_word_time = words_data[0]['start']
+        last_word_time = words_data[-1]['end']
+        analysis['overall_metrics']['speaking_time'] = last_word_time - first_word_time
+        analysis['overall_metrics']['total_words'] = len(words_data)
+        
+        # Calculate words per minute
+        speaking_minutes = analysis['overall_metrics']['speaking_time'] / 60.0
+        if speaking_minutes > 0:
+            analysis['speaking_pace']['words_per_minute'] = len(words_data) / speaking_minutes
+            analysis['speaking_pace']['speaking_duration'] = analysis['overall_metrics']['speaking_time']
+    
+    # Analyze filler words from disfluencies
+    filler_words = ['um', 'uh', 'like', 'you know', 'i mean', 'basically', 'actually', 'literally']
+    filler_count = 0
+    filler_frequency = {}
+    
+    for word in words_data:
+        word_text = word['text'].lower().strip()
+        if word_text in filler_words:
+            filler_count += 1
+            filler_frequency[word_text] = filler_frequency.get(word_text, 0) + 1
+    
+    analysis['filler_words']['total_count'] = filler_count
+    analysis['filler_words']['common_fillers'] = filler_frequency
+    
+    # Calculate filler word density
+    if analysis['overall_metrics']['total_words'] > 0:
+        analysis['filler_words']['density'] = filler_count / analysis['overall_metrics']['total_words']
+    
+    # Analyze pauses between words
+    pauses = []
+    for i in range(1, len(words_data)):
+        current_word = words_data[i]
+        previous_word = words_data[i-1]
+        
+        pause_duration = current_word['start'] - previous_word['end']
+        if pause_duration > 0.5:  # Pause longer than 0.5 seconds
+            pauses.append({
+                'duration': pause_duration,
+                'position': i,
+                'start': previous_word['end'],
+                'end': current_word['start']
+            })
+    
+    analysis['pauses']['total_pauses'] = len(pauses)
+    analysis['pauses']['pause_locations'] = pauses
+    
+    if pauses:
+        analysis['pauses']['average_pause_duration'] = sum(p['duration'] for p in pauses) / len(pauses)
+        analysis['pauses']['long_pauses'] = len([p for p in pauses if p['duration'] > 2.0])
+    
+    # Calculate silence time
+    if transcript.audio_duration and analysis['overall_metrics']['speaking_time']:
+        analysis['overall_metrics']['silence_time'] = transcript.audio_duration - analysis['overall_metrics']['speaking_time']
+    
+    return analysis
+
 def transcribe_audio_file(audio_file):
     """
     Returns:
@@ -10,11 +104,11 @@ def transcribe_audio_file(audio_file):
             'success': bool, 
             'text': str, 
             'error': str,
-            'utterances': list,  # Speech segments with timing
             'sentiment_analysis': dict,  # Overall sentiment scores
             'words': list,  # Individual words with timing
             'confidence': float,  # Overall confidence
-            'audio_duration': float  # Duration in seconds
+            'audio_duration': float,  # Duration in seconds
+            'analysis': dict,  # Enhanced analysis metrics -> using words data and transcription for metrics.
         }
     """
     try:
@@ -28,7 +122,8 @@ def transcribe_audio_file(audio_file):
                 'sentiment_analysis': {},
                 'words': [],
                 'confidence': 0.0,
-                'audio_duration': 0.0
+                'audio_duration': 0.0,
+                'analysis': {}
             }
         
         aai.settings.api_key = api_key
@@ -42,7 +137,7 @@ def transcribe_audio_file(audio_file):
         
         # Configure transcription
         config = aai.TranscriptionConfig(
-            speech_model=aai.SpeechModel.best,
+            speech_model=aai.SpeechModel.best, # best defaulted, but lowk might change if expensive
             language_code="en",
             disfluencies=True,
             sentiment_analysis=True,
@@ -65,22 +160,22 @@ def transcribe_audio_file(audio_file):
                 'sentiment_analysis': {},
                 'words': [],
                 'confidence': 0.0,
-                'audio_duration': 0.0
+                'audio_duration': 0.0,
+                'analysis': {}
             }
         
         # Extract rich data from the transcript
-        # TODO: DELETE THIS I THINK BECAUSE UTTERANCE ONLY WORKS IF WE CARE ABOUT SPEAKER
-        # utterances_data = []
-        # if transcript.utterances:
-        #     for utterance in transcript.utterances:
-        #         utterance_data = {
-        #             'text': utterance.text,
-        #             'start': utterance.start,
-        #             'end': utterance.end,
-        #             'confidence': utterance.confidence,
-        #             'speaker': utterance.speaker if hasattr(utterance, 'speaker') else None,
-        #         }
-        #         utterances_data.append(utterance_data)
+        utterances_data = []
+        if hasattr(transcript, 'utterances') and transcript.utterances:
+            for utterance in transcript.utterances:
+                utterance_data = {
+                    'text': utterance.text,
+                    'start': utterance.start,
+                    'end': utterance.end,
+                    'confidence': utterance.confidence,
+                    'speaker': utterance.speaker if hasattr(utterance, 'speaker') else None,
+                }
+                utterances_data.append(utterance_data)
         
         words_data = []
         if hasattr(transcript, 'words') and transcript.words:
@@ -106,16 +201,20 @@ def transcribe_audio_file(audio_file):
                     'end': sentiment_result.end
                 })
         
+        # Perform speech analysis
+        speech_analysis = analyze_speech_metrics(transcript, words_data)
+        
         # Return successful transcription with rich data
         return {
             'success': True,
             'text': transcript.text,
             'error': None,
-            # 'utterances': utterances_data,
+            'utterances': utterances_data,
             'sentiment_analysis': sentiment_data,
             'words': words_data,
             'confidence': transcript.confidence,
-            'audio_duration': transcript.audio_duration
+            'audio_duration': transcript.audio_duration,
+            'analysis': speech_analysis
         }
         # if it shits the bed, return the error
     except Exception as e:
@@ -127,5 +226,6 @@ def transcribe_audio_file(audio_file):
             'sentiment_analysis': {},
             'words': [],
             'confidence': 0.0,
-            'audio_duration': 0.0
+            'audio_duration': 0.0,
+            'analysis': {}
         } 
