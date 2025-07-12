@@ -4,6 +4,19 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
+    <!-- Audio Preference Notice -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <h3 class="text-sm font-medium text-blue-800 mb-1">Audio Recording Preferred</h3>
+                <p class="text-sm text-blue-700">We prefer audio recordings for better feedback and analysis. If you don't provide an audio file, we'll use your text input instead.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Question Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-michigan-blue mb-2">{{ question.title }}</h1>
@@ -92,7 +105,25 @@
         </div>
         <div class="mb-6">
             <label for="response_audio" class="block text-sm font-medium text-gray-700 mb-2">Record Audio Response (will be transcribed to text)</label>
-            <input type="file" name="response_audio" id="response_audio" accept="audio/*" class="w-full p-2 border rounded-lg">
+            <div class="relative">
+                <input type="file" name="response_audio" id="response_audio" accept="audio/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <div id="file-upload-area" class="flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span id="file-upload-text" class="text-sm font-medium text-gray-700">Choose audio file or drag and drop</span>
+                    </div>
+                </div>
+            </div>
+            <div id="file-info" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span id="file-name" class="text-sm font-medium text-green-800"></span>
+                </div>
+            </div>
             <p class="text-sm text-gray-500 mt-1">Record your answer above, then use "Use This Recording" to add it to your submission.</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -253,11 +284,44 @@ function useRecording() {
         dataTransfer.items.add(file);
         
         // Set the file input
-        document.getElementById('response_audio').files = dataTransfer.files;
+        const fileInput = document.getElementById('response_audio');
+        fileInput.files = dataTransfer.files;
+        
+        // Manually trigger the change event to update the UI
+        const changeEvent = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(changeEvent);
         
         alert('Recording added to form! You can now submit your answer.');
     }
 }
+
+// File input handling
+document.getElementById('response_audio').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileUploadText = document.getElementById('file-upload-text');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    
+    if (file) {
+        // Show file info
+        fileName.textContent = file.name;
+        fileInfo.classList.remove('hidden');
+        
+        // Update upload area appearance
+        fileUploadArea.classList.remove('border-gray-300', 'bg-gray-50');
+        fileUploadArea.classList.add('border-green-300', 'bg-green-50');
+        fileUploadText.textContent = 'File selected ✓';
+    } else {
+        // Hide file info
+        fileInfo.classList.add('hidden');
+        
+        // Reset upload area appearance
+        fileUploadArea.classList.remove('border-green-300', 'bg-green-50');
+        fileUploadArea.classList.add('border-gray-300', 'bg-gray-50');
+        fileUploadText.textContent = 'Choose audio file or drag and drop';
+    }
+});
 
 // Event listeners
 document.getElementById('startRecording').addEventListener('click', startRecording);

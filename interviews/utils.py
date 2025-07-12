@@ -19,7 +19,7 @@ def analyze_speech_metrics(transcript, words_data):
         },
         'pauses': {
             'total_pauses': 0,
-            'long_pauses': 0,  # >0.5 seconds
+            'long_pauses': 0,  # >2.0 seconds
             'average_pause_duration': 0.0,
             'pause_locations': []
         },
@@ -41,7 +41,7 @@ def analyze_speech_metrics(transcript, words_data):
     # Calculate speaking duration and total words
     if words_data:
         first_word_time = words_data[0]['start']
-        last_word_time = words_data[-1]['end']
+        last_word_time = words_data[-1]['end'] #-1 is the last element in python, who knew
         analysis['overall_metrics']['speaking_time'] = last_word_time - first_word_time
         analysis['overall_metrics']['total_words'] = len(words_data)
         
