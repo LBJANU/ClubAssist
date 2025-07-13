@@ -93,13 +93,42 @@ class InterviewSession(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     
+    # Practice session questions (flexible JSONField)
+    questions = models.JSONField(default=list, help_text="List of question IDs for this session") #list of question IDs
+    current_question_index = models.IntegerField(default=0, help_text="Index of current question (0-based)")    
     # Results
     total_score = models.IntegerField(null=True, blank=True)
-    questions_attempted = models.IntegerField(default=0)
-    questions_correct = models.IntegerField(default=0)
     
     class Meta:
         ordering = ['-started_at']
     
     def __str__(self):
         return f"{self.user.username} - {self.category} Session ({self.started_at.date()})"
+    
+    def get_current_question(self):
+        """Get the current question based on current_question_index"""
+        if self.questions and 0 <= self.current_question_index < len(self.questions):
+            question_id = self.questions[self.current_question_index]
+            try:
+                return InterviewQuestion.objects.get(id=question_id)
+            except InterviewQuestion.DoesNotExist:
+                return None
+        return None
+    
+    def get_progress_percentage(self):
+        """Get completion percentage of the session"""
+        if self.questions:
+            return (self.current_question_index / len(self.questions)) * 100
+        return 0
+    
+    def is_last_question(self):
+        """Check if current question is the last one"""
+        return self.current_question_index >= len(self.questions) - 1
+    
+    def can_move_to_next(self):
+        """Check if user can move to next question"""
+        return self.current_question_index < len(self.questions) - 1
+    
+    def can_move_to_previous(self):
+        """Check if user can move to previous question"""
+        return self.current_question_index > 0

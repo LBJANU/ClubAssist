@@ -41,7 +41,7 @@
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center">
             <h4 class="text-lg font-semibold text-gray-900 mb-2">Practice Session</h4>
             <p class="text-gray-600 mb-4 text-center">Complete a timed session with multiple questions.</p>
-            <a href="#" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">Start Practice Session</a>
+            <a href="{% url 'clubs:start_practice_session' club.id %}" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">Start Practice Session</a>
         </div>
     </div>
 
@@ -100,7 +100,7 @@
                         <div>
                             <h4 class="text-md font-semibold text-gray-900 mb-1">Session on {{ session.started_at|date:"M d, Y" }}</h4>
                             <div class="text-sm text-gray-500">
-                                {{ session.questions_attempted }} questions attempted
+                                {{ session.question_count }} questions in session
                                 {% if session.total_score %}
                                     • Score: {{ session.total_score }}
                                 {% endif %}
