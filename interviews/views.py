@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from clubs.models import Club
+from clubs.models import Club, ClubUserConnector
 from .models import InterviewQuestion, UserInterviewProgress, InterviewSession
 from .utils import transcribe_audio_file
 import random
@@ -15,6 +15,11 @@ def club_prep(request, club_id):
     
     # Get all questions for this club
     questions = InterviewQuestion.objects.filter(club_connections__club=club)
+
+    #Update prep count for club
+    club_prep = ClubUserConnector.objects.get(club=club, user=request.user)
+    club_prep.started_prep = True
+    club_prep.save()
     
     # Get user's progress on these questions
     user_progress = UserInterviewProgress.objects.filter(

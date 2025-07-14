@@ -44,9 +44,15 @@ def profile_view(request):
         user=request.user,
         interested=True
     ).select_related('club')
+
+    prep_clubs_count = ClubUserConnector.objects.filter(
+        user=request.user,
+        started_prep=True
+    ).count()
     
     context = {
         'interested_clubs': interested_clubs,
+        'prep_clubs_count': prep_clubs_count,
     }
     return render(request, 'users/profile.html', context)
 
