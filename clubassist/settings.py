@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'clubs',
     'interviews',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
