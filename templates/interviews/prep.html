@@ -45,6 +45,39 @@
         </div>
     </div>
 
+    <!-- Recent Sessions -->
+    {% if recent_sessions %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Recent Practice Sessions</h2>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for session in recent_sessions %}
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-900 mb-1">Session on {{ session.started_at|date:"M d, Y" }}</h4>
+                            <div class="text-sm text-gray-500">
+                                {{ session.question_count }} questions in session
+                                {% if session.total_score %}
+                                    • Score: {{ session.total_score }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mt-2 md:mt-0">
+                            {% if session.is_completed %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">Completed</span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">In Progress</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Available Questions -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
         <div class="p-6 border-b border-gray-200">
@@ -86,38 +119,5 @@
             {% endif %}
         </div>
     </div>
-
-    <!-- Recent Sessions -->
-    {% if recent_sessions %}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-        <div class="p-6 border-b border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-900">Recent Practice Sessions</h2>
-        </div>
-        <div class="p-6">
-            <div class="space-y-4">
-                {% for session in recent_sessions %}
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div>
-                            <h4 class="text-md font-semibold text-gray-900 mb-1">Session on {{ session.started_at|date:"M d, Y" }}</h4>
-                            <div class="text-sm text-gray-500">
-                                {{ session.question_count }} questions in session
-                                {% if session.total_score %}
-                                    • Score: {{ session.total_score }}
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="mt-2 md:mt-0">
-                            {% if session.is_completed %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">Completed</span>
-                            {% else %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">In Progress</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %} 
