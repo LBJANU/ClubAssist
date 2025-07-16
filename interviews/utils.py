@@ -2,6 +2,7 @@ import assemblyai as aai
 import os
 from django.conf import settings
 import tempfile
+import requests 
 
 def analyze_speech_metrics(transcript, words_data):
     """
@@ -229,3 +230,40 @@ def transcribe_audio_file(audio_file):
             'audio_duration': 0.0,
             'analysis': {}
         } 
+    
+def feedback(question, answer):
+    # getting api key from .env; for production swap to access from settings.py
+    api_key = os.environ.get("TOGETHER_API_KEY")
+    if not api_key: raise ValueError("can't find API key")
+    
+    # url for together api
+    link = "https://api.together.xyz/v1/chat/completions"
+    
+    # headers for the request 
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    # prompt, model and more info 
+    data = {
+        "model": "Qwen/Qwen3-235B-A22B-fp8-tput",
+        "messages": [
+            {"role": "system", "content": "You are a CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school). The student you are INTERVIEWING is applying to be a member of your club (and is likely a first-year or second-year student at Umich)."},
+            
+            {"role": "user", "content": (f"The student has just concluded answering the following question: “{question}”\n\n"
+                                         f"Their answer was the following: “{answer}”\n\n"
+                                         "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. Limit your feedback to 25-50 words, no less or no more. At the end of your evaluation, provide the student with a rating (on a scale of 1 to 5) of their response, considering the following three characteristics primarily (interest, experience, and motivation) but also more subtle things such as length of response, how well their response is catered to the question, cadence/confidence, and the student’s attitude. Remember to use a conversational-formal tone when giving the student feedback.")}
+        ],
+        # diff model settings 
+        "temperature": 0.7,
+        "max_tokens": 800
+    }
+
+    response = requests.post(link, json=data, headers=headers)
+    response.raise_for_status()
+
+    content = response.json()["choices"][0]["message"]["content"]
+    if "</think>" in content:
+        return content.split("</think>", 1)[1].strip()
+    else: return content
