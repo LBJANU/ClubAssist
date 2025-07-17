@@ -7,6 +7,7 @@ from .models import InterviewQuestion, UserInterviewProgress, InterviewSession
 from .utils import transcribe_audio_file
 import random
 from django.utils import timezone
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 @login_required
@@ -15,6 +16,16 @@ def club_prep(request, club_id):
     
     # Get all questions for this club
     questions = InterviewQuestion.objects.filter(club_connections__club=club)
+
+    # Pagination setup
+    page = request.GET.get('page', 1)
+    paginator = Paginator(questions, 10)  # 10 questions per page
+    try:
+        questions_page = paginator.page(page)
+    except PageNotAnInteger:
+        questions_page = paginator.page(1)
+    except EmptyPage:
+        questions_page = paginator.page(paginator.num_pages)
 
     #Update prep count for club
     club_prep = ClubUserConnector.objects.get(club=club, user=request.user)
@@ -41,13 +52,18 @@ def club_prep(request, club_id):
 
     context = {
         'club': club,
-        'questions': questions,
+        'questions': questions,  # keep for now for compatibility
+        'questions_page': questions_page,  # new paginated object
         'user_progress': user_progress,
         'total_questions': total_questions,
         'attempted_questions': attempted_questions,
         'completed_questions': completed_questions,
         'recent_sessions': recent_sessions,
     }
+
+    # HTMX support: return only the questions list partial if HX-Request header is present
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'interviews/_questions_list.html', context)
 
     return render(request, 'interviews/prep.html', context)
 

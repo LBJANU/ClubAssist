@@ -84,39 +84,9 @@
             <h2 class="text-xl font-semibold text-gray-900">Available Questions ({{ total_questions }})</h2>
         </div>
         <div class="p-6">
-            {% if questions %}
-                <div class="space-y-4">
-                    {% for question in questions %}
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ question.title }}</h3>
-                                <div class="flex items-center space-x-2 text-sm text-gray-500 mb-1">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">{{ question.get_difficulty_display }}</span>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">{{ question.get_question_type_display }}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 mt-2 md:mt-0">
-                                {% for progress in user_progress %}
-                                    {% if progress.question == question %}
-                                        {% if progress.completed %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">Completed</span>
-                                        {% elif progress.attempted %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">Attempted</span>
-                                        {% else %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">Not Started</span>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                                <a href="{% url 'clubs:practice_question' club.id question.id %}" class="ml-2 bg-michigan-blue text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-michigan-blue/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-michigan-blue focus:ring-offset-2">
-                                    <i class="fas fa-pen mr-1"></i>Practice
-                                </a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-500">No questions available for this club yet.</p>
-            {% endif %}
+            <div id="questions-list">
+                {% include 'interviews/_questions_list.html' %}
+            </div>
         </div>
     </div>
 </div>

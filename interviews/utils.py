@@ -118,7 +118,6 @@ def transcribe_audio_file(audio_file):
                 'success': False,
                 'text': '',
                 'error': 'AssemblyAI API key not configured',
-                'utterances': [],
                 'sentiment_analysis': {},
                 'words': [],
                 'confidence': 0.0,
@@ -156,7 +155,6 @@ def transcribe_audio_file(audio_file):
                 'success': False,
                 'text': '',
                 'error': f'Transcription failed: {transcript.error}',
-                'utterances': [],
                 'sentiment_analysis': {},
                 'words': [],
                 'confidence': 0.0,
@@ -165,18 +163,6 @@ def transcribe_audio_file(audio_file):
             }
         
         # Extract rich data from the transcript
-        utterances_data = []
-        if hasattr(transcript, 'utterances') and transcript.utterances:
-            for utterance in transcript.utterances:
-                utterance_data = {
-                    'text': utterance.text,
-                    'start': utterance.start,
-                    'end': utterance.end,
-                    'confidence': utterance.confidence,
-                    'speaker': utterance.speaker if hasattr(utterance, 'speaker') else None,
-                }
-                utterances_data.append(utterance_data)
-        
         words_data = []
         if hasattr(transcript, 'words') and transcript.words:
             for word in transcript.words:
@@ -209,7 +195,6 @@ def transcribe_audio_file(audio_file):
             'success': True,
             'text': transcript.text,
             'error': None,
-            'utterances': utterances_data,
             'sentiment_analysis': sentiment_data,
             'words': words_data,
             'confidence': transcript.confidence,
@@ -222,7 +207,6 @@ def transcribe_audio_file(audio_file):
             'success': False,
             'text': '',
             'error': f'Transcription error: {str(e)}',
-            # 'utterances': [],
             'sentiment_analysis': {},
             'words': [],
             'confidence': 0.0,
