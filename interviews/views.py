@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from clubs.models import Club, ClubUserConnector
 from .models import InterviewQuestion, UserInterviewProgress, InterviewSession
-from .utils import transcribe_audio_file
+from .utils import transcribe_audio_file, feedback
 import random
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -232,6 +232,7 @@ def practice_question(request, club_id, question_id):
     if request.method == 'POST':
         user_answer = request.POST.get('user_answer', '').strip()
         notes = request.POST.get('notes', '').strip()
+        speech_metrics = None
         
         # Handle audio file processing (if provided)
         if 'response_audio' in request.FILES:
@@ -243,6 +244,7 @@ def practice_question(request, club_id, question_id):
             if transcription_result['success']:
                 # Use the transcribed text as the answer
                 transcribed_text = transcription_result['text'].strip()
+                speech_metrics = transcription_result['analysis']
                 if transcribed_text:
                     user_answer = transcribed_text
                     messages.success(request, 'Audio successfully transcribed!')
@@ -253,10 +255,19 @@ def practice_question(request, club_id, question_id):
                 if not user_answer:
                     user_answer = "[Audio transcription failed]"
                 messages.error(request, f'Transcription failed: {transcription_result["error"]}')
+                speech_metrics = transcription_result.get('analysis', {})
         
         question_progress.user_answer = user_answer
         question_progress.completed = True
         question_progress.notes = notes
+        
+        try:
+            fb = feedback(question.question_text, user_answer, speech_metrics)
+        except Exception as e:
+            fb = f"Error generating feedback: {str(e)}"
+        
+        question_progress.feedback = fb
+        
         question_progress.save()
 
     context = {

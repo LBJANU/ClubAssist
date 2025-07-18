@@ -59,7 +59,8 @@ class UserInterviewProgress(models.Model):
     # Progress tracking
     attempted = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
-    score = models.IntegerField(null=True, blank=True, help_text="Score out of 100")
+    score = models.IntegerField(null=True, blank=True, help_text="Score out of 5")
+    feedback = models.TextField(blank=True, null=True, help_text="Feedback from AI");
     time_taken_minutes = models.FloatField(null=True, blank=True)
     
     # User's response

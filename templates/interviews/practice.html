@@ -155,6 +155,17 @@
     <a href="{% url 'clubs:prep' club.id %}" class="inline-block mt-4 text-michigan-blue hover:underline">&larr; Back to Question Bank</a>
 </div>
 
+<div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+  <div class="text-lg font-semibold text-michigan-blue">Processing your answer...</div>
+</div>
+
+{% if question_progress.feedback %}
+  <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-6">
+    <h3 class="font-semibold text-michigan-blue mb-2">AI Feedback</h3>
+    <p class="text-gray-800">{{ question_progress.feedback }}</p>
+  </div>
+{% endif %}
+
 <script>
 let mediaRecorder;
 let audioChunks = [];
@@ -328,5 +339,8 @@ document.getElementById('startRecording').addEventListener('click', startRecordi
 document.getElementById('stopRecording').addEventListener('click', stopRecording);
 document.getElementById('downloadAudio').addEventListener('click', downloadAudio);
 document.getElementById('useRecording').addEventListener('click', useRecording);
+document.querySelector('form').addEventListener('submit', function() {
+  document.getElementById('loading-overlay').classList.remove('hidden');
+});
 </script>
 {% endblock %} 
