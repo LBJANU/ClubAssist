@@ -2,6 +2,7 @@ import assemblyai as aai
 import os
 from django.conf import settings
 import tempfile
+import requests
 
 def analyze_speech_metrics(transcript, words_data):
     """
@@ -213,3 +214,66 @@ def transcribe_audio_file(audio_file):
             'audio_duration': 0.0,
             'analysis': {}
         } 
+    
+def feedback(question, answer, speech_metrics):
+    """
+    Provides feedback on student's given answer to given question, taking into account speech metrics.
+
+    Returns: 
+        str: 25-50 word feedback on response with rating out of 5
+    """
+    # getting api key from .env; for production swap to access from settings.py
+    api_key = os.environ.get("TOGETHER_API_KEY")
+    if not api_key: raise ValueError("can't find API key")
+    
+    # url for together api
+    link = "https://api.together.xyz/v1/chat/completions"
+    
+    # headers for the request 
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    # speech metrics 
+    f = speech_metrics['filler_words']['density'] * 100
+    filler = max(1, min(5, int((6 - min(f, 10) / 2))))
+    
+    lp = speech_metrics['pauses']['long_pauses']
+    avg_p = speech_metrics['pauses']['average_pause_duration']
+    pause = 5 if lp <= 1 and avg_p < 1 else 3 if lp <= 3 else 1
+    
+    wpm = speech_metrics['speaking_pace']['words_per_minute']
+    pace = 5 if 120 <= wpm <= 150 else 4 if 100 <= wpm < 120 or 150 < wpm <= 170 else 2 if 80 <= wpm < 100 or 170 < wpm <= 190 else 1
+
+    st, si = speech_metrics['overall_metrics']['speaking_time'], speech_metrics['overall_metrics']['silence_time']
+    ratio = st/(st+si) if st+si > 0 else 0
+    silence_balance = 5 if 0.7 <= ratio <= 0.9 else 4 if 0.6 <= ratio < 0.7 or 0.9 < ratio <= 0.95 else 2
+    
+    consistency = 5 if speech_metrics['speaking_pace']['pace_consistency']=='consistent' else 1
+
+    cScore = round((filler + pause + pace + silence_balance + consistency) / 5)
+
+    # prompt, model and more info 
+    data = {
+        "model": "Qwen/Qwen3-235B-A22B-fp8-tput",
+        "messages": [
+            {"role": "system", "content": "You are a CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school). The student you are INTERVIEWING is applying to be a member of your club (and is likely a first-year or second-year student at Umich)."},
+            
+            {"role": "user", "content": (f"The student has just concluded answering the following question: '{question}'\n\n"
+                                         f"Their answer was the following: '{answer}'\n\n"
+                                         f"Additionally, consider the following confidence score: {cScore}\n\n"
+                                         "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. Limit your feedback to 25-50 words, no less or no more. At the end of your evaluation, provide the student with a rating (on a scale of 1 to 5) of their response, considering the following three characteristics primarily (interest, experience, and motivation) but also more subtle things such as length of response, how well their response is catered to the question, cadence/confidence, and the student’s attitude. In your rating, ensure you take a weighted average of two numbers, the student's confidence score (30%) and their response's score for purely content. Remember to use a conversational-formal tone when giving the student feedback.")}
+        ],
+        # diff model settings 
+        "temperature": 0.7,
+        "max_tokens": 800
+    }
+
+    response = requests.post(link, json=data, headers=headers)
+    response.raise_for_status()
+
+    content = response.json()["choices"][0]["message"]["content"]
+    if "</think>" in content:
+        return content.split("</think>", 1)[1].strip()
+    else: return content
