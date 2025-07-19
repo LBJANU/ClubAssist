@@ -134,6 +134,7 @@ def practice_session(request, club_id, session_id):
             # Save the current answer
             user_answer = request.POST.get('user_answer', '').strip()
             notes = request.POST.get('notes', '').strip()
+            speech_metrics = None
             
             # Handle audio file processing
             if 'response_audio' in request.FILES:
@@ -142,6 +143,7 @@ def practice_session(request, club_id, session_id):
                 
                 if transcription_result['success']:
                     transcribed_text = transcription_result['text'].strip()
+                    speech_metrics = transcription_result['analysis']
                     if transcribed_text:
                         user_answer = transcribed_text
                         messages.success(request, 'Audio successfully transcribed!')
@@ -151,10 +153,19 @@ def practice_session(request, club_id, session_id):
                     if not user_answer:
                         user_answer = "[Audio transcription failed]"
                     messages.error(request, f'Transcription failed: {transcription_result["error"]}')
+                    speech_metrics = transcription_result.get('analysis', {})
+            
+            try:
+                fb = feedback(current_question.question_text, user_answer, speech_metrics)
+            except Exception as e:
+                fb = f"Error generating feedback: {str(e)}"
+            
+            question_progress.feedback = fb
             
             question_progress.user_answer = user_answer
             question_progress.completed = True
             question_progress.notes = notes
+            
             question_progress.save()
             
             messages.success(request, 'Answer saved!')
@@ -171,7 +182,7 @@ def practice_session(request, club_id, session_id):
                 session.completed_at = timezone.now()
                 session.save()
                 messages.success(request, 'Session completed!')
-                return redirect('clubs:prep', club_id=club_id)
+                return redirect('clubs:practice_session_summary', session_id=session.id)
                 
         elif action == 'previous_question':
             # Move to previous question
@@ -276,3 +287,18 @@ def practice_question(request, club_id, question_id):
         'question_progress': question_progress,
     }
     return render(request, 'interviews/practice.html', context)
+
+@login_required
+def practice_session_summary(request, session_id):
+    session = get_object_or_404(InterviewSession, id=session_id, user=request.user)
+    club = session.club
+    questions = InterviewQuestion.objects.filter(id__in=session.questions)
+    user_progress = UserInterviewProgress.objects.filter(user=request.user, question__in=questions, club=club)
+
+    context = {
+        'club': club,
+        'questions': questions,
+        'user_progress': user_progress,
+        'session': session,
+    }
+    return render(request, 'interviews/practice_session_summary.html', context)

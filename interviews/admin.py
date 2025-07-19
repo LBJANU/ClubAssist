@@ -12,7 +12,7 @@ class InterviewQuestionAdmin(admin.ModelAdmin):
 
 @admin.register(UserInterviewProgress)
 class UserInterviewProgressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'question', 'club', 'attempted', 'completed', 'score', 'time_taken_minutes', 'user_answer', 'notes', 'attempted_at', 'completed_at')
+    list_display = ('user', 'question', 'club', 'attempted', 'completed', 'score', 'feedback', 'time_taken_minutes', 'user_answer', 'notes', 'attempted_at', 'completed_at')
     readonly_fields = ('attempted_at', 'completed_at')
     search_fields = ('user__username', 'question__title', 'club__name')
     list_filter = ('user', 'question', 'club', 'attempted', 'completed')
