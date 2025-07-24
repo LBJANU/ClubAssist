@@ -11,7 +11,7 @@
             <div class="flex items-center space-x-4">
                 <span class="text-sm text-gray-600">Question {{ current_question_number }} of {{ total_questions }}</span>
                 <div class="w-32 bg-gray-200 rounded-full h-2">
-                    <div class="bg-michigan-blue h-2 rounded-full" style="width: {{ session.get_progress_percentage }}%"></div>
+                    <div class="bg-michigan-blue h-2 rounded-full" style="width: {{ session.get_progress_percentage|floatformat:0 }}%;"></div>
                 </div>
             </div>
         </div>
@@ -122,26 +122,12 @@
             <!-- Action Buttons -->
             <div class="flex items-center justify-between">
                 <div class="flex space-x-4">
-                    {% if session.can_move_to_previous %}
-                        <button type="submit" name="action" value="previous_question" class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors">
-                            ← Previous Question
-                        </button>
-                    {% endif %}
+                    <!-- Removed Previous Question button -->
                     <button type="submit" name="action" value="save_answer" class="bg-michigan-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-michigan-blue/90 transition-colors">
                         Save Answer
                     </button>
                 </div>
-                <div>
-                    {% if session.is_last_question %}
-                        <button type="submit" name="action" value="next_question" class="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                            Complete Session
-                        </button>
-                    {% else %}
-                        <button type="submit" name="action" value="next_question" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                            Next Question →
-                        </button>
-                    {% endif %}
-                </div>
+                <!-- Removed Next/Complete Session buttons, as Save Answer now advances automatically -->
             </div>
         </form>
     </div>

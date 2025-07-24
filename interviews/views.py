@@ -109,16 +109,16 @@ def start_practice_session(request, club_id):
 
 @login_required
 def practice_session(request, club_id, session_id):
-    """Handle the practice session interface"""
+    """Handle the practice session interface with only 'Save Answer' to move forward. No going back."""
     club = get_object_or_404(Club, id=club_id)
     session = get_object_or_404(InterviewSession, id=session_id, user=request.user)
-    
+
     # Get current question: STRICTLY ERROR CHECKING (SHOULD NEVER REACH THIS STATE)
     current_question = session.get_current_question()
     if not current_question:
         messages.error(request, 'No questions found in this session.')
         return redirect('clubs:prep', club_id=club_id)
-    
+
     # Get or create progress for current question
     question_progress, created = UserInterviewProgress.objects.get_or_create(
         user=request.user,
@@ -126,21 +126,20 @@ def practice_session(request, club_id, session_id):
         club=club,
         defaults={'attempted': True}
     )
-    
+
     if request.method == 'POST':
         action = request.POST.get('action')
-        
         if action == 'save_answer':
             # Save the current answer
             user_answer = request.POST.get('user_answer', '').strip()
             notes = request.POST.get('notes', '').strip()
             speech_metrics = None
-            
+
             # Handle audio file processing
             if 'response_audio' in request.FILES:
                 audio_file = request.FILES['response_audio']
                 transcription_result = transcribe_audio_file(audio_file)
-                
+
                 if transcription_result['success']:
                     transcribed_text = transcription_result['text'].strip()
                     speech_metrics = transcription_result['analysis']
@@ -154,28 +153,25 @@ def practice_session(request, club_id, session_id):
                         user_answer = "[Audio transcription failed]"
                     messages.error(request, f'Transcription failed: {transcription_result["error"]}')
                     speech_metrics = transcription_result.get('analysis', {})
-            
+
             try:
                 fb = feedback(current_question.question_text, user_answer, speech_metrics)
             except Exception as e:
                 fb = f"Error generating feedback: {str(e)}"
-            
+
             question_progress.feedback = fb
-            
             question_progress.user_answer = user_answer
             question_progress.completed = True
             question_progress.notes = notes
-            
             question_progress.save()
-            
+
             messages.success(request, 'Answer saved!')
-            
-        elif action == 'next_question':
-            # Move to next question
+
+            # Move to next question automatically
             if session.can_move_to_next():
                 session.current_question_index += 1
                 session.save()
-                messages.info(request, 'Moving to next question...')
+                return redirect('clubs:practice_session', club_id=club_id, session_id=session.id)
             else:
                 # Session completed
                 session.is_completed = True
@@ -183,22 +179,13 @@ def practice_session(request, club_id, session_id):
                 session.save()
                 messages.success(request, 'Session completed!')
                 return redirect('clubs:practice_session_summary', session_id=session.id)
-                
-        elif action == 'previous_question':
-            # Move to previous question
-            if session.can_move_to_previous():
-                session.current_question_index -= 1
-                session.save()
-                messages.info(request, 'Moving to previous question...')
-            else:
-                messages.warning(request, 'Already at the first question.')
-    
+
     # Reload current question after navigation
     current_question = session.get_current_question()
     if not current_question:
         messages.error(request, 'No questions found in this session.')
         return redirect('clubs:prep', club_id=club_id)
-    
+
     # Get or create progress for current question
     question_progress, created = UserInterviewProgress.objects.get_or_create(
         user=request.user,
@@ -206,7 +193,7 @@ def practice_session(request, club_id, session_id):
         club=club,
         defaults={'attempted': True}
     )
-    
+
     # Get all questions in session for navigation
     session_questions = []
     for question_id in session.questions:
@@ -215,7 +202,7 @@ def practice_session(request, club_id, session_id):
             session_questions.append(question)
         except InterviewQuestion.DoesNotExist:
             pass
-    
+
     context = {
         'club': club,
         'session': session,
@@ -225,7 +212,7 @@ def practice_session(request, club_id, session_id):
         'current_question_number': session.current_question_index + 1,
         'total_questions': len(session.questions),
     }
-    
+
     return render(request, 'interviews/practice_session.html', context)
 
 @login_required
@@ -294,11 +281,12 @@ def practice_session_summary(request, session_id):
     club = session.club
     questions = InterviewQuestion.objects.filter(id__in=session.questions)
     user_progress = UserInterviewProgress.objects.filter(user=request.user, question__in=questions, club=club)
-
+    completed_questions = user_progress.filter(completed=True).count()
     context = {
         'club': club,
         'questions': questions,
         'user_progress': user_progress,
         'session': session,
+        'completed_questions': completed_questions,
     }
     return render(request, 'interviews/practice_session_summary.html', context)

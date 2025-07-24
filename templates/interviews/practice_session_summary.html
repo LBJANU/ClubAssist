@@ -24,7 +24,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center">
             <h5 class="text-sm font-medium text-gray-600 mb-2">Questions Completed</h5>
-            <p class="text-2xl font-bold text-green-600">{{ user_progress.filter.completed.count }}</p>
+            <p class="text-2xl font-bold text-green-600">{{ completed_questions }}</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center">
             <h5 class="text-sm font-medium text-gray-600 mb-2">Session Status</h5>
@@ -118,14 +118,6 @@
         <div class="flex space-x-4">
             <a href="{% url 'clubs:prep' club.id %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors">
                 Back to Question Bank
-            </a>
-            <a href="{% url 'clubs:start_practice_session' club.id %}" class="bg-michigan-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-michigan-blue/90 transition-colors">
-                Start New Session
-            </a>
-        </div>
-        <div>
-            <a href="{% url 'clubs:practice_session' club.id session.id %}" class="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                Continue Session
             </a>
         </div>
     </div>
