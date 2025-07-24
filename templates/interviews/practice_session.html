@@ -159,6 +159,16 @@
     <a href="{% url 'clubs:prep' club.id %}" class="inline-block mt-6 text-michigan-blue hover:underline">&larr; Back to Question Bank</a>
 </div>
 
+<div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50">
+  <div class="mb-4">
+    <svg class="animate-spin h-10 w-10 text-michigan-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+  </div>
+  <div id="loading-message" class="text-lg font-semibold text-michigan-blue">Processing your answer...</div>
+</div>
+
 <script>
 let mediaRecorder;
 let audioChunks = [];
@@ -332,5 +342,33 @@ document.getElementById('startRecording').addEventListener('click', startRecordi
 document.getElementById('stopRecording').addEventListener('click', stopRecording);
 document.getElementById('downloadAudio').addEventListener('click', downloadAudio);
 document.getElementById('useRecording').addEventListener('click', useRecording);
+
+let loadingMessages = [
+  'Uploading audio...',
+  'Transcribing...',
+  'Analyzing speech...',
+  'Generating feedback...'
+];
+let loadingMessageIndex = 0;
+let loadingMessageInterval;
+
+function startLoadingMessages() {
+  loadingMessageIndex = 0;
+  document.getElementById('loading-message').textContent = loadingMessages[loadingMessageIndex];
+  loadingMessageInterval = setInterval(() => {
+    loadingMessageIndex = (loadingMessageIndex + 1) % loadingMessages.length;
+    document.getElementById('loading-message').textContent = loadingMessages[loadingMessageIndex];
+  }, 1800);
+}
+
+function stopLoadingMessages() {
+  clearInterval(loadingMessageInterval);
+  document.getElementById('loading-message').textContent = 'Processing your answer...';
+}
+
+document.querySelector('form').addEventListener('submit', function() {
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  startLoadingMessages();
+});
 </script>
 {% endblock %} 
