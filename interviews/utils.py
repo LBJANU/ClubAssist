@@ -106,10 +106,6 @@ def transcribe_audio_file(audio_file):
             'success': bool, 
             'text': str, 
             'error': str,
-            'sentiment_analysis': dict,  # Overall sentiment scores
-            'words': list,  # Individual words with timing
-            'confidence': float,  # Overall confidence
-            'audio_duration': float,  # Duration in seconds
             'analysis': dict,  # Enhanced analysis metrics -> using words data and transcription for metrics.
         }
     """
@@ -120,10 +116,6 @@ def transcribe_audio_file(audio_file):
                 'success': False,
                 'text': '',
                 'error': 'AssemblyAI API key not configured',
-                'sentiment_analysis': {},
-                'words': [],
-                'confidence': 0.0,
-                'audio_duration': 0.0,
                 'analysis': {}
             }
         
@@ -141,7 +133,6 @@ def transcribe_audio_file(audio_file):
             speech_model=aai.SpeechModel.best, # best defaulted, but lowk might change if expensive
             language_code="en",
             disfluencies=True,
-            sentiment_analysis=True,
         )
         
         # Transcribe the audio
@@ -157,10 +148,6 @@ def transcribe_audio_file(audio_file):
                 'success': False,
                 'text': '',
                 'error': f'Transcription failed: {transcript.error}',
-                'sentiment_analysis': {},
-                'words': [],
-                'confidence': 0.0,
-                'audio_duration': 0.0,
                 'analysis': {}
             }
         
@@ -177,18 +164,6 @@ def transcribe_audio_file(audio_file):
                 })
         
         
-        # Extract sentiment analysis data
-        sentiment_data = []
-        if hasattr(transcript, 'sentiment_analysis') and transcript.sentiment_analysis:
-            for sentiment_result in transcript.sentiment_analysis:
-                sentiment_data.append({
-                    'text': sentiment_result.text,
-                    'sentiment': sentiment_result.sentiment,  # POSITIVE, NEUTRAL, or NEGATIVE
-                    'confidence': sentiment_result.confidence,
-                    'start': sentiment_result.start,
-                    'end': sentiment_result.end
-                })
-        
         # Perform speech analysis
         speech_analysis = analyze_speech_metrics(transcript, words_data)
         
@@ -197,10 +172,6 @@ def transcribe_audio_file(audio_file):
             'success': True,
             'text': transcript.text,
             'error': None,
-            'sentiment_analysis': sentiment_data,
-            'words': words_data,
-            'confidence': transcript.confidence,
-            'audio_duration': transcript.audio_duration,
             'analysis': speech_analysis
         }
         # if it shits the bed, return the error
@@ -209,10 +180,6 @@ def transcribe_audio_file(audio_file):
             'success': False,
             'text': '',
             'error': f'Transcription error: {str(e)}',
-            'sentiment_analysis': {},
-            'words': [],
-            'confidence': 0.0,
-            'audio_duration': 0.0,
             'analysis': {}
         } 
     
