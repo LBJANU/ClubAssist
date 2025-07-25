@@ -4,6 +4,18 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
+    <!-- Audio Preference Notice -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <h3 class="text-sm font-medium text-blue-800 mb-1">Audio Recording Preferred</h3>
+                <p class="text-sm text-blue-700">We prefer audio recordings for better feedback and analysis. If you don't provide an audio file, we'll use your text input instead.</p>
+            </div>
+        </div>
+    </div>
     <!-- Session Header -->
     <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
@@ -124,7 +136,7 @@
                 <div class="flex space-x-4">
                     <!-- Removed Previous Question button -->
                     <button type="submit" name="action" value="save_answer" class="bg-michigan-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-michigan-blue/90 transition-colors">
-                        Save Answer
+                        Submit Answer
                     </button>
                 </div>
                 <!-- Removed Next/Complete Session buttons, as Save Answer now advances automatically -->

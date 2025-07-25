@@ -109,7 +109,6 @@ def start_practice_session(request, club_id):
 
 @login_required
 def practice_session(request, club_id, session_id):
-    """Handle the practice session interface with only 'Save Answer' to move forward. No going back."""
     club = get_object_or_404(Club, id=club_id)
     session = get_object_or_404(InterviewSession, id=session_id, user=request.user)
 
