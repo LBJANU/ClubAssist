@@ -12,7 +12,7 @@
             </svg>
             <div>
                 <h3 class="text-sm font-medium text-blue-800 mb-1">Audio Recording Preferred</h3>
-                <p class="text-sm text-blue-700">We prefer audio recordings for better feedback and analysis. If you don't provide an audio file, we'll use your text input instead.</p>
+                <p class="text-sm text-blue-700">We prefer audio recordings for better feedback and analysis. 75 seconds is the maximum recording time. If you don't provide an audio file, we'll use your text input instead.</p>
             </div>
         </div>
     </div>
@@ -177,6 +177,8 @@ let mediaRecorder;
 let audioChunks = [];
 let recordingStartTime;
 let recordingTimer;
+let maxRecordingTime = 75; // seconds
+let recordingTimeout = null;
 
 // Check if browser supports MediaRecorder
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -225,7 +227,12 @@ async function startRecording() {
         mediaRecorder.start();
         recordingStartTime = Date.now();
         startTimer();
-        
+
+        // Cap recording at 75 seconds
+        recordingTimeout = setTimeout(() => {
+            stopRecording();
+        }, maxRecordingTime * 1000);
+
         document.getElementById('startRecording').classList.add('hidden');
         document.getElementById('stopRecording').classList.remove('hidden');
         document.getElementById('recordingIndicator').classList.remove('hidden');
@@ -241,7 +248,10 @@ function stopRecording() {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
         clearInterval(recordingTimer);
-        
+        if (recordingTimeout) {
+            clearTimeout(recordingTimeout);
+            recordingTimeout = null;
+        }
         document.getElementById('startRecording').classList.remove('hidden');
         document.getElementById('stopRecording').classList.add('hidden');
     }
