@@ -161,6 +161,7 @@ def practice_session(request, club_id, session_id):
             question_progress.feedback = fb
             question_progress.user_answer = user_answer
             question_progress.completed = True
+            question_progress.completed_at = timezone.now()
             question_progress.notes = notes
             question_progress.save()
 
@@ -253,19 +254,19 @@ def practice_question(request, club_id, question_id):
                     user_answer = "[Audio transcription failed]"
                 messages.error(request, f'Transcription failed: {transcription_result["error"]}')
                 speech_metrics = transcription_result.get('analysis', {})
-        
-        question_progress.user_answer = user_answer
-        question_progress.completed = True
-        question_progress.notes = notes
-        
+
         try:
             fb = feedback(question.question_text, user_answer, speech_metrics)
         except Exception as e:
             fb = f"Error generating feedback: {str(e)}"
         
+        question_progress.user_answer = user_answer
+        question_progress.completed = True
+        question_progress.notes = notes
         question_progress.feedback = fb
-        
+        question_progress.completed_at = timezone.now()
         question_progress.save()
+
 
     context = {
         'club': club,
