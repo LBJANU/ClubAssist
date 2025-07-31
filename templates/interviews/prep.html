@@ -82,6 +82,76 @@
     </div>
     {% endif %}
 
+    <!-- Filter Questions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Filter Questions</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
+                    <input type="text" 
+                           name="name_search" 
+                           placeholder="Search questions..."
+                           hx-get="{% url 'clubs:prep' club.id %}" 
+                           hx-target="#questions-list" 
+                           hx-swap="innerHTML"
+                           hx-trigger="keyup changed delay:500ms"
+                           hx-include="[name='difficulty'],[name='question_type'],[name='status']"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                    <select name="difficulty" 
+                            hx-get="{% url 'clubs:prep' club.id %}" 
+                            hx-target="#questions-list" 
+                            hx-swap="innerHTML"
+                            hx-trigger="change"
+                            hx-include="[name='name_search'],[name='question_type'],[name='status']"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue">
+                        <option value="">All Difficulties</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Question Type</label>
+                    <select name="question_type" 
+                            hx-get="{% url 'clubs:prep' club.id %}" 
+                            hx-target="#questions-list" 
+                            hx-swap="innerHTML"
+                            hx-trigger="change"
+                            hx-include="[name='name_search'],[name='difficulty'],[name='status']"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue">
+                        <option value="">All Types</option>
+                        <option value="behavioral">Behavioral</option>
+                        <option value="technical">Technical</option>
+                        <option value="case_study">Case Study</option>
+                        <option value="brain_teaser">Brain Teaser</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" 
+                            hx-get="{% url 'clubs:prep' club.id %}" 
+                            hx-target="#questions-list" 
+                            hx-swap="innerHTML"
+                            hx-trigger="change"
+                            hx-include="[name='name_search'],[name='difficulty'],[name='question_type']"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue">
+                        <option value="">All Status</option>
+                        <option value="not_started">Not Started</option>
+                        <option value="attempted">Attempted</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Available Questions -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
         <div class="p-6 border-b border-gray-200">

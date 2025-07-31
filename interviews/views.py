@@ -14,8 +14,41 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def club_prep(request, club_id):
     club = get_object_or_404(Club, id=club_id)
     
+    # Get filter parameters
+    difficulty = request.GET.get('difficulty', '')
+    question_type = request.GET.get('question_type', '')
+    name_search = request.GET.get('name_search', '')
+    status = request.GET.get('status', '')
+    
     # Get all questions for this club
     questions = InterviewQuestion.objects.filter(club_connections__club=club)
+    
+    # Apply filters
+    if difficulty:
+        questions = questions.filter(difficulty=difficulty)
+    if question_type:
+        questions = questions.filter(question_type=question_type)
+    if name_search:
+        questions = questions.filter(title__icontains=name_search)
+    
+    # Get user's progress for status filtering
+    user_progress = UserInterviewProgress.objects.filter(
+        user=request.user,
+        question__in=questions,
+        club=club
+    )
+    
+    # Apply status filter
+    if status:
+        if status == 'completed':
+            completed_question_ids = user_progress.filter(completed=True).values_list('question_id', flat=True)
+            questions = questions.filter(id__in=completed_question_ids)
+        elif status == 'attempted':
+            attempted_question_ids = user_progress.filter(attempted=True).values_list('question_id', flat=True)
+            questions = questions.filter(id__in=attempted_question_ids)
+        elif status == 'not_started':
+            attempted_question_ids = user_progress.filter(attempted=True).values_list('question_id', flat=True)
+            questions = questions.exclude(id__in=attempted_question_ids)
 
     # Pagination setup
     page = request.GET.get('page', 1)
@@ -59,6 +92,13 @@ def club_prep(request, club_id):
         'attempted_questions': attempted_questions,
         'completed_questions': completed_questions,
         'recent_sessions': recent_sessions,
+        # Add filter values to context
+        'current_filters': {
+            'difficulty': difficulty,
+            'question_type': question_type,
+            'name_search': name_search,
+            'status': status,
+        }
     }
 
     # HTMX support: return only the questions list partial if HX-Request header is present
