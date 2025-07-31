@@ -32,8 +32,8 @@
         <div
             hx-get="?page={{ questions_page.next_page_number }}{% if current_filters.difficulty %}&difficulty={{ current_filters.difficulty }}{% endif %}{% if current_filters.question_type %}&question_type={{ current_filters.question_type }}{% endif %}{% if current_filters.name_search %}&name_search={{ current_filters.name_search }}{% endif %}{% if current_filters.status %}&status={{ current_filters.status }}{% endif %}"
             hx-trigger="revealed"
-            hx-swap="afterend"
-            hx-target="#questions-list"
+            hx-swap="beforeend"
+            hx-target="#questions-list .space-y-4"
             class="flex justify-center items-center mt-6"
             id="load-more-trigger"
         >
