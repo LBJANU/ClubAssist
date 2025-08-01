@@ -44,7 +44,7 @@ def club_prep(request, club_id):
             completed_question_ids = user_progress.filter(completed=True).values_list('question_id', flat=True)
             questions = questions.filter(id__in=completed_question_ids)
         elif status == 'attempted':
-            attempted_question_ids = user_progress.filter(attempted=True).values_list('question_id', flat=True)
+            attempted_question_ids = user_progress.filter(attempted=True, completed=False).values_list('question_id', flat=True)
             questions = questions.filter(id__in=attempted_question_ids)
         elif status == 'not_started':
             attempted_question_ids = user_progress.filter(attempted=True).values_list('question_id', flat=True)
