@@ -71,7 +71,7 @@ def profile_view(request):
         user=request.user,
         completed=True,
         completed_at__gte=start_date,
-        completed_at__lte=current_date
+        completed_at__lt=current_date + timedelta(days=1)
     ).annotate(
         date=TruncDate('completed_at')
     ).values('date').annotate(
