@@ -52,7 +52,7 @@ def club_prep(request, club_id):
 
     # Pagination setup
     page = request.GET.get('page', 1)
-    paginator = Paginator(questions, 10)  # 10 questions per page
+    paginator = Paginator(questions, 30)  # 10 questions per page
     try:
         questions_page = paginator.page(page)
     except PageNotAnInteger:
