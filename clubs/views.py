@@ -7,37 +7,66 @@ from .models import Club, ClubUserConnector
 # Create your views here.
 @login_required
 def club_list(request):
-    category = request.GET.get('category')
+    #ALl passed through for the initial load
+    club_categories = Club.CATEGORY_CHOICES
+    clubs = Club.objects.all().order_by('name')
+    
+    user_interests = {}
+    if request.user.is_authenticated:
+        interests = ClubUserConnector.objects.filter(
+            user=request.user,
+            club__in=clubs
+        )
+        for interest in interests:
+            user_interests[interest.club_id] = interest.interested
+    
+    context = {
+        'club_categories': club_categories,
+        'clubs': clubs,
+        'user_interests': user_interests,
+        'selected_category': None,
+        'search_query': '',
+    }
+    # club_categories = Club.CATEGORY_CHOICES
+    
+    # context = {
+    #     'club_categories': club_categories,
+    # }
+    return render(request, 'clubs/club_list.html', context)
+
+@login_required
+def search_clubs(request):
+    query = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    
     clubs = Club.objects.all()
+    
+    if query:
+        clubs = clubs.filter(name__icontains=query)
     
     if category:
         clubs = clubs.filter(category=category)
     
     clubs = clubs.order_by('name')
-    club_categories = Club.CATEGORY_CHOICES
     
-    # Initialize empty dictionary
+    # Same logic as the original view for user interests
     user_interests = {}
-    
-    # not sure if user actually needs to be authenticated to see the list (security check tho)
     if request.user.is_authenticated:
-        # Get all interests for this user and these clubs
         interests = ClubUserConnector.objects.filter(
             user=request.user,
             club__in=clubs
         )
-        
-        # Store just the interested boolean value, not the whole object
         for interest in interests:
             user_interests[interest.club_id] = interest.interested
-
+    
     context = {
         'clubs': clubs,
-        'club_categories': club_categories,
-        'selected_category': category,
         'user_interests': user_interests,
+        'search_query': query,
+        'selected_category': category,
     }
-    return render(request, 'clubs/club_list.html', context)
+    
+    return render(request, 'clubs/clubs_grid.html', context)
 
 @login_required
 def toggle_interest(request, club_id):
