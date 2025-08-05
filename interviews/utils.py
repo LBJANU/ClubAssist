@@ -224,16 +224,50 @@ def feedback(question, answer, speech_metrics = None):
 
         cScore = round((filler + pause + pace + silence_balance + consistency) / 5)
 
+    if 0 <= cScore and cScore <= 5:
+        prompt = (
+            f"The student has just concluded answering the following question: '{question}'\n\n"
+            f"Their answer was the following: '{answer}'\n\n"
+            f"Additionally, consider the following confidence score: {cScore}\n\n"
+            "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. "
+            "Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. "
+            "Limit your feedback to 50-75 words, no less or no more. Do not include extensive internal reasoning. If you must think, be brief. "
+            "Limit thinking to under 200 tokens. At the end of your evaluation, provide the student with a rating (on a scale of 1 to 5, including decimals) of their response, "
+            "considering the following three characteristics primarily (interest, experience, and motivation) but also more subtle things such as length of response, "
+            "how well their response is catered to the question, cadence/confidence, and the student’s attitude. "
+            "IF the confidence score provided is in the 1-5 scale, then in your rating, ensure you take a weighted average of two numbers, "
+            "the student's confidence score (30%) and their response's score for purely content. "
+            "IF the confidence score is not between 1 and 5, simply ignore it and rate the content of their response. "
+            "Remember to use a conversational-formal tone when giving the student feedback. "
+            "Do NOT use stars or emojis. Do NOT mention that you are using a weighted average. Do NOT be excessively nice or sugarcoat negative feedback."
+        )
+
+    else: # any other case just pretend there's no cScore 
+        prompt = (
+            f"The student has just concluded answering the following question: '{question}'\n\n"
+            f"Their answer was the following: '{answer}'\n\n"
+            "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. "
+            "Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. "
+            "Limit your feedback to 50-75 words, no less or no more. Do not include extensive internal reasoning. If you must think, be brief. "
+            "Limit thinking to under 200 tokens. At the end of your evaluation, provide the student with a rating (on a scale of 1 to 5, including decimals) of their response, "
+            "considering the following three characteristics primarily (interest, experience, and motivation) but also more subtle things such as length of response, "
+            "how well their response is catered to the question, cadence/confidence, and the student’s attitude. "
+            "Ignore the confidence score. Remember to use a conversational-formal tone when giving the student feedback. "
+            "Do NOT use stars or emojis. Do NOT be excessively nice or sugarcoat negative feedback."
+        )
+
     # prompt, model and more info 
     data = {
         "model": "Qwen/Qwen3-235B-A22B-fp8-tput",
         "messages": [
-            {"role": "system", "content": "You are a CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school). The student you are INTERVIEWING is applying to be a member of your club (and is likely a first-year or second-year student at Umich)."},
+            {"role": "system", "content": "You are a CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school)."
+                                          "The student you are INTERVIEWING is applying to be a member of your club (and is likely a first-year or second-year student at Umich)."
+                                          "You will respond to each question with a JSON object containing two fields:\n\n"
+                                            "1. 'feedback': a string containing concise, honest feedback (25-50 words), noting both strengths and weaknesses.\n"
+                                            "2. 'rating': a string representing a score from 1.0 to 5.0 (decimals allowed), based on interest, experience, motivation, and presentation quality.\n\n"
+                                            "Do not include any commentary outside the JSON object. Do not use stars, emojis, or extra words. Only return the JSON."},
             
-            {"role": "user", "content": (f"The student has just concluded answering the following question: '{question}'\n\n"
-                                         f"Their answer was the following: '{answer}'\n\n"
-                                         f"Additionally, consider the following confidence score: {cScore}\n\n"
-                                         "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. Limit your feedback to 25-50 words, no less or no more. Do not include extensive internal reasoning. If you must think, be brief. Limit thinking to under 200 tokens. At the end of your evaluation, provide the student with a rating (on a scale of 1 to 5, including decimals) of their response, considering the following three characteristics primarily (interest, experience, and motivation) but also more subtle things such as length of response, how well their response is catered to the question, cadence/confidence, and the student’s attitude. IF the confidence score provided is in the 1-5 scale, then in your rating, ensure you take a weighted average of two numbers, the student's confidence score (30%) and their response's score for purely content. IF the confidence score is not between 1 and 5, simply ignore it and rate the content of their response. Remember to use a conversational-formal tone when giving the student feedback.")}
+            {"role": "user", "content": prompt}
         ],
         # diff model settings 
         "temperature": 0.7,
