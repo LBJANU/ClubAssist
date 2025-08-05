@@ -5,22 +5,37 @@
 {% block title %}Club Directory - ClubAssist{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-16">
-        <h1 class="text-3xl font-bold text-michigan-blue mb-2">Discover University Clubs</h1>
-        <p class="text-gray-600">Liked clubs will appear in your profile to start prep</p>
+<div class="container mx-auto px-4 py-12">
+    <!-- Enhanced Header Section -->
+    <div class="text-center mb-16">
+        <div class="inline-flex items-center px-4 py-2 bg-michigan-gradient-light rounded-full text-sm font-semibold text-michigan-blue mb-6 shadow-michigan">
+            <i class="fas fa-search mr-2 text-michigan-maize"></i>
+            Club Discovery
+        </div>
+        <h1 class="text-5xl md:text-6xl font-black text-michigan-blue mb-6 leading-tight">
+            Discover University Clubs
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Find your perfect club match and start practicing for interviews. Liked clubs will appear in your profile to begin your prep journey.
+        </p>
     </div>
 
-    <!-- Filter Clubs -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-gray-900">Filter Clubs</h2>
-        </div>
-        <div class="border border-gray-200 rounded-lg p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Search by Name</label>
+    <!-- Enhanced Filter Section -->
+    <div class="mb-12">
+        <div class="glass p-8 rounded-2xl shadow-michigan max-w-4xl mx-auto">
+            <div class="flex items-center justify-center mb-6">
+                <h2 class="text-2xl font-bold text-michigan-blue flex items-center">
+                    <i class="fas fa-filter mr-3 text-michigan-maize"></i>
+                    Find Your Perfect Club
+                </h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Search Input -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-michigan-blue">
+                        <i class="fas fa-search mr-2"></i>Search by Name
+                    </label>
                     <input type="text" 
                            name="q" 
                            placeholder="Search clubs..."
@@ -29,30 +44,59 @@
                            hx-swap="innerHTML"
                            hx-trigger="keyup changed delay:500ms"
                            hx-include="[name='category']"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue">
+                           class="form-input w-full bg-white/80 text-gray-800 placeholder-gray-500">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select name="category" 
-                            hx-get="{% url 'clubs:search_clubs' %}" 
-                            hx-target="#clubs-grid" 
-                            hx-swap="innerHTML"
-                            hx-trigger="change"
-                            hx-include="[name='q']"
-                            class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-michigan-blue focus:border-michigan-blue text-gray-700">
-                        <option value="">All Categories</option>
-                        {% for category_value, category_name in club_categories %}
-                        <option value="{{ category_value }}">{{ category_name }}</option>
-                        {% endfor %}
-                    </select>
+                
+                <!-- Category Select -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-michigan-blue">
+                        <i class="fas fa-tags mr-2"></i>Category
+                    </label>
+                    <div class="relative">
+                        <select name="category" 
+                                hx-get="{% url 'clubs:search_clubs' %}" 
+                                hx-target="#clubs-grid" 
+                                hx-swap="innerHTML"
+                                hx-trigger="change"
+                                hx-include="[name='q']"
+                                class="form-input w-full bg-white/80 text-gray-800 appearance-none pr-12">
+                            <option value="">All Categories</option>
+                            {% for category_value, category_name in club_categories %}
+                            <option value="{{ category_value }}">{{ category_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Stats/Info -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-center space-x-8 text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-university text-michigan-blue mr-2"></i>
+                        <span>100+ Active Clubs</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users text-michigan-blue mr-2"></i>
+                        <span>All Categories</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-star text-michigan-blue mr-2"></i>
+                        <span>Curated Questions</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    
+
     <!-- Clubs Grid (HTMX target) -->
     <div id="clubs-grid">
-        {% include 'clubs/clubs_grid.html' %}<!-- Initial clubs will load here -->
+        {% include 'clubs/clubs_grid.html' %}
     </div>
 </div>
 {% endblock %} 
