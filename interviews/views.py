@@ -198,7 +198,8 @@ def practice_session(request, club_id, session_id):
             except Exception as e:
                 fb = f"Error generating feedback: {str(e)}"
 
-            question_progress.feedback = fb
+            question_progress.feedback = fb['display_text']
+            question_progress.score = fb['rating']
             question_progress.user_answer = user_answer
             question_progress.completed = True
             question_progress.completed_at = timezone.now()
@@ -303,7 +304,8 @@ def practice_question(request, club_id, question_id):
         question_progress.user_answer = user_answer
         question_progress.completed = True
         question_progress.notes = notes
-        question_progress.feedback = fb
+        question_progress.feedback = fb['display_text']
+        question_progress.score = fb['rating']
         question_progress.completed_at = timezone.now()
         question_progress.save()
 

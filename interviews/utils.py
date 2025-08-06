@@ -188,7 +188,11 @@ def feedback(question, answer, speech_metrics = None):
     Provides feedback on student's given answer to given question, taking into account speech metrics.
 
     Returns: 
-        str: 25-50 word feedback on response with rating out of 5
+        dict: {
+            'display_text': str,  # Formatted feedback + rating for user display
+            'feedback': str,       # Just the feedback text
+            'rating': float        # Rating as number for database storage
+        }
     """
     # getting api key from .env; for production swap to access from settings.py
     api_key = os.environ.get("TOGETHER_API_KEY")
@@ -282,4 +286,31 @@ def feedback(question, answer, speech_metrics = None):
     content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
     content = re.sub(r"</?think>", "", content)
 
-    return content.strip()
+    # Parse the JSON response
+    try:
+        import json
+        parsed_response = json.loads(content.strip())
+        
+        # Extract feedback and rating
+        feedback_text = parsed_response.get('feedback', 'No feedback provided.')
+        rating_str = parsed_response.get('rating', '0.0')
+        
+        # Convert rating to float, with fallback
+        try:
+            rating = float(rating_str)
+        except (ValueError, TypeError):
+            rating = 0.0
+        
+        return {
+            'display_text': f"{feedback_text}\n\nRating: {rating}/5",
+            'feedback': feedback_text,
+            'rating': rating
+        }
+        
+    except json.JSONDecodeError:
+        # Fallback if JSON parsing fails - return the raw content as feedback
+        return {
+            'display_text': f"{content.strip()}\n\nRating: 0.0/5",
+            'feedback': content.strip(),
+            'rating': 0.0
+        }

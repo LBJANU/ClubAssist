@@ -20,6 +20,7 @@ class InterviewQuestion(models.Model):
     # Basic question info
     title = models.CharField(max_length=200)
     question_text = models.TextField()
+    case_context = models.TextField(blank=True)
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES, default='general')
     
@@ -59,7 +60,7 @@ class UserInterviewProgress(models.Model):
     # Progress tracking
     attempted = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
-    score = models.IntegerField(null=True, blank=True, help_text="Score out of 5")
+    score = models.FloatField(null=True, blank=True, help_text="Score out of 5")
     feedback = models.TextField(blank=True, null=True, help_text="Feedback from AI");
     time_taken_minutes = models.FloatField(null=True, blank=True)
     
