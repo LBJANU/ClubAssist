@@ -11,10 +11,10 @@
             Interview Preparation
         </div>
         
-        <h1 class="text-5xl md:text-6xl font-black text-michigan-blue mb-6 leading-tight">{{ club.name }}</h1>
+        <h1 class="text-4xl md:text-5xl font-black text-michigan-blue mb-6 leading-tight">{{ club.name }}</h1>
         
         <div class="flex justify-center mb-6">
-            <span class="inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-michigan">
+            <span class="inline-flex items-center px-6 py-3 rounded-full text-base font-semibold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-michigan">
                 <i class="fas fa-tag mr-3"></i>
                 {{ club.get_category_display }}
             </span>
@@ -28,32 +28,23 @@
     <!-- Enhanced Progress Overview -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         <!-- Total Questions Card -->
-        <div class="card-michigan p-8 text-center shadow-michigan group">
-            <div class="w-16 h-16 bg-michigan-gradient rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-question-circle text-2xl text-white"></i>
-            </div>
-            <h5 class="text-sm font-bold text-michigan-blue mb-3 uppercase tracking-wide">Total Questions</h5>
-            <p class="text-4xl font-black text-michigan-blue mb-2">{{ total_questions }}</p>
+        <div class="card-michigan p-6 text-center shadow-michigan">
+            <h5 class="text-sm font-bold text-michigan-blue mb-2 uppercase tracking-wide">Total Questions</h5>
+            <p class="text-3xl font-black text-michigan-blue mb-1">{{ total_questions }}</p>
             <div class="text-sm text-gray-500">Available to practice</div>
         </div>
         
         <!-- Attempted Card -->
-        <div class="card-michigan p-8 text-center shadow-michigan group">
-            <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-clock text-2xl text-white"></i>
-            </div>
-            <h5 class="text-sm font-bold text-michigan-blue mb-3 uppercase tracking-wide">Attempted</h5>
-            <p class="text-4xl font-black text-yellow-600 mb-2">{{ attempted_questions }}</p>
+        <div class="card-michigan p-6 text-center shadow-michigan">
+            <h5 class="text-sm font-bold text-michigan-blue mb-2 uppercase tracking-wide">Attempted</h5>
+            <p class="text-3xl font-black text-yellow-600 mb-1">{{ attempted_questions }}</p>
             <div class="text-sm text-gray-500">In progress</div>
         </div>
         
         <!-- Completed Card -->
-        <div class="card-michigan p-8 text-center shadow-michigan group">
-            <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-check-circle text-2xl text-white"></i>
-            </div>
-            <h5 class="text-sm font-bold text-michigan-blue mb-3 uppercase tracking-wide">Completed</h5>
-            <p class="text-4xl font-black text-green-600 mb-2">{{ completed_questions }}</p>
+        <div class="card-michigan p-6 text-center shadow-michigan">
+            <h5 class="text-sm font-bold text-michigan-blue mb-2 uppercase tracking-wide">Completed</h5>
+            <p class="text-3xl font-black text-green-600 mb-1">{{ completed_questions }}</p>
             <div class="text-sm text-gray-500">Finished</div>
         </div>
     </div>
