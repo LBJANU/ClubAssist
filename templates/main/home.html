@@ -1,28 +1,25 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<!-- Hero Section with Michigan Gradient -->
-<div class="relative min-h-[70vh] overflow-hidden">
+<!-- Hero Section with Michigan Gradient - Full Height -->
+<div class="relative min-h-screen overflow-hidden">
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-michigan-gradient opacity-5"></div>
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(255, 203, 5, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(0, 39, 76, 0.1) 0%, transparent 50%);"></div>
     
-    <div class="relative container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+    <div class="relative container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center min-h-screen">
         <!-- Main Hero Content -->
         <div class="max-w-5xl mx-auto">
             <!-- Main Headline -->
             <h1 class="text-6xl md:text-7xl lg:text-8xl font-black text-michigan-blue mb-10 leading-tight">
-                Stop <span class="relative">
-                    <span class="bg-michigan-maize text-michigan-blue px-3 py-1 rounded-lg font-black">gambling</span>
-                    <div class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-michigan-maize to-yellow-400 rounded-full"></div>
-                </span><br>
-                with your club interviews.
+                Say <span class="bg-blue-100 text-michigan-blue px-2 py-0.5 rounded font-black">goodbye</span><br>
+                to failed club interviews.
             </h1>
             
             <!-- Subtitle -->
             <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-16 leading-relaxed">
-                The end of bad interviews is <span class="font-semibold text-michigan-blue">here</span>.<br>
-                Get ready to ace your University of Michigan club interviews with personalized, AI-powered practice and feedback.
+                Unimpressed interviewers are a thing of the past<br>
+                Get ready to ace your Umich club interviews with personalized, AI-powered practice and feedback
             </p>
             
             <!-- CTA Button -->
@@ -47,10 +44,6 @@
                     <div class="text-gray-600 font-medium">User Satisfaction</div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
         </div>
     </div>
 </div>
