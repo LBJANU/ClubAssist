@@ -194,7 +194,7 @@ def practice_session(request, club_id, session_id):
                     speech_metrics = transcription_result.get('analysis', {})
 
             try:
-                fb = feedback(current_question.question_text, user_answer, speech_metrics)
+                fb = feedback(current_question.question_text, user_answer, club.category, speech_metrics, current_question.case_context)
             except Exception as e:
                 fb = f"Error generating feedback: {str(e)}"
 
@@ -297,7 +297,7 @@ def practice_question(request, club_id, question_id):
                 speech_metrics = transcription_result.get('analysis', {})
 
         try:
-            fb = feedback(question.question_text, user_answer, speech_metrics)
+            fb = feedback(question.question_text, user_answer, club.category, speech_metrics, question.case_context)
         except Exception as e:
             fb = f"Error generating feedback: {str(e)}"
         

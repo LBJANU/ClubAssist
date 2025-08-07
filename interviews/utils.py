@@ -183,7 +183,7 @@ def transcribe_audio_file(audio_file):
             'analysis': {}
         } 
     
-def feedback(question, answer, speech_metrics = None):
+def feedback(question, answer, category, speech_metrics = None, case_context = None):
     """
     Provides feedback on student's given answer to given question, taking into account speech metrics.
 
@@ -206,6 +206,11 @@ def feedback(question, answer, speech_metrics = None):
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+
+    # Build context section conditionally
+    context_section = ""
+    if case_context and case_context.strip():
+        context_section = f"\nCase Context:\n{case_context.strip()}\n"
 
     # speech metrics 
     cScore = -1
@@ -230,7 +235,7 @@ def feedback(question, answer, speech_metrics = None):
 
     if 0 <= cScore and cScore <= 5:
         prompt = (
-            f"The student has just concluded answering the following question: '{question}'\n\n"
+            f"The student has just concluded answering the following question: '{question}'{context_section}\n"
             f"Their answer was the following: '{answer}'\n\n"
             f"Additionally, consider the following confidence score: {cScore}\n\n"
             "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. "
@@ -248,7 +253,7 @@ def feedback(question, answer, speech_metrics = None):
 
     else: # any other case just pretend there's no cScore 
         prompt = (
-            f"The student has just concluded answering the following question: '{question}'\n\n"
+            f"The student has just concluded answering the following question: '{question}'{context_section}\n"
             f"Their answer was the following: '{answer}'\n\n"
             "Pretend as if you are conducting an interview with them, providing them with feedback on their answer to that question. "
             "Be HONEST, ensuring both things they did well and things they did poorly are mentioned in your feedback. "
@@ -264,7 +269,7 @@ def feedback(question, answer, speech_metrics = None):
     data = {
         "model": "Qwen/Qwen3-235B-A22B-fp8-tput",
         "messages": [
-            {"role": "system", "content": "You are a CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school)."
+            {"role": "system", "content": f"You are a {category.upper()} CLUB INTERVIEWER at the University of Michigan (you are a third-year student at the school)."
                                           "The student you are INTERVIEWING is applying to be a member of your club (and is likely a first-year or second-year student at Umich)."
                                           "You will respond to each question with a JSON object containing two fields:\n\n"
                                             "1. 'feedback': a string containing concise, honest feedback (25-50 words), noting both strengths and weaknesses.\n"
@@ -277,6 +282,15 @@ def feedback(question, answer, speech_metrics = None):
         "temperature": 0.7,
         "max_tokens": 600
     }
+
+    # Debug: You can check out the payload being sent to LLM
+    print("=" * 80)
+    print("LLM PAYLOAD DEBUG:")
+    print("=" * 80)
+    print(f"Category: {category}")
+    print(f"System Message: {data['messages'][0]['content']}")
+    print(f"User Message: {data['messages'][1]['content']}")
+    print("=" * 80)
 
     response = requests.post(link, json=data, headers=headers)
     response.raise_for_status()
