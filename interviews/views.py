@@ -192,9 +192,13 @@ def practice_session(request, club_id, session_id):
                         user_answer = "[Audio transcription failed]"
                     messages.error(request, f'Transcription failed: {transcription_result["error"]}')
                     speech_metrics = transcription_result.get('analysis', {})
-
+            
+            club_category_input = club.category
+            if club_category_input == 'top 50':
+                club_category_input = club.name.split()[0]
+            
             try:
-                fb = feedback(current_question.question_text, user_answer, club.category, speech_metrics, current_question.case_context)
+                fb = feedback(current_question.question_text, user_answer, club_category_input, speech_metrics, current_question.case_context)
             except Exception as e:
                 fb = f"Error generating feedback: {str(e)}"
 
@@ -295,9 +299,13 @@ def practice_question(request, club_id, question_id):
                     user_answer = "[Audio transcription failed]"
                 messages.error(request, f'Transcription failed: {transcription_result["error"]}')
                 speech_metrics = transcription_result.get('analysis', {})
+        
+        club_category_input = club.category
+        if club_category_input == 'top 50':
+            club_category_input = club.name.split()[0]
 
         try:
-            fb = feedback(question.question_text, user_answer, club.category, speech_metrics, question.case_context)
+            fb = feedback(question.question_text, user_answer, club_category_input, speech_metrics, question.case_context)
         except Exception as e:
             fb = f"Error generating feedback: {str(e)}"
         

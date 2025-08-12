@@ -4,11 +4,14 @@ from django.contrib.auth.models import User
 class Club(models.Model):
 
     CATEGORY_CHOICES = [
+        ('top 50', 'Top 50 (Recommended)'),
+        ('consulting', 'Consulting'),
+        ('finance', 'Finance'),
+        ('marketing', 'Marketing'),
+        ('business fraternity', 'Business Fraternity'),
         ('tech', 'Technology'),
-        ('business', 'Business'),
         ('pre-med', 'Pre-Med'),
         ('pre-dental', 'Pre-Dental'),
-        ('arts', 'Arts'),
         ('other', 'Other'),
     ]
     name = models.CharField(max_length=200, unique=True)
