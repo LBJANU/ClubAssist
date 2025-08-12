@@ -216,22 +216,36 @@ def feedback(question, answer, category, speech_metrics = None, case_context = N
     cScore = -1
     if speech_metrics:
         f = speech_metrics['filler_words']['density'] * 100
-        filler = max(1, min(5, int((6 - min(f, 10) / 2))))
-        
+        if f <= 5: filler = 5
+        elif f <= 10: filler = 4
+        elif f <= 15: filler = 3
+        elif f <= 20: filler = 2
+        else: filler = 1
+
         lp = speech_metrics['pauses']['long_pauses']
         avg_p = speech_metrics['pauses']['average_pause_duration']
-        pause = 5 if lp <= 1 and avg_p < 1 else 3 if lp <= 3 else 1
-        
+        if lp <= 2 and avg_p < 1.2: pause = 5
+        elif lp <= 4: pause = 4
+        elif lp <= 6: pause = 3
+        elif lp <= 8: pause = 2
+        else: pause = 1
+
         wpm = speech_metrics['speaking_pace']['words_per_minute']
-        pace = 5 if 120 <= wpm <= 150 else 4 if 100 <= wpm < 120 or 150 < wpm <= 170 else 2 if 80 <= wpm < 100 or 170 < wpm <= 190 else 1
+        if 110 <= wpm <= 160: pace = 5
+        elif 90 <= wpm < 110 or 160 < wpm <= 180: pace = 4
+        elif 75 <= wpm < 90 or 180 < wpm <= 200: pace = 3
+        elif 60 <= wpm < 75 or 200 < wpm <= 220: pace = 2
+        else: pace = 1
 
-        st, si = speech_metrics['overall_metrics']['speaking_time'], speech_metrics['overall_metrics']['silence_time']
-        ratio = st/(st+si) if st+si > 0 else 0
-        silence_balance = 5 if 0.7 <= ratio <= 0.9 else 4 if 0.6 <= ratio < 0.7 or 0.9 < ratio <= 0.95 else 2
-        
-        consistency = 5 if speech_metrics['speaking_pace']['pace_consistency']=='consistent' else 1
+        st = speech_metrics['overall_metrics']['speaking_time']
+        si = speech_metrics['overall_metrics']['silence_time']
+        ratio = st / (st + si) if st + si > 0 else 0
+        if 0.65 <= ratio <= 0.92: silence = 5
+        elif 0.60 <= ratio < 0.65 or 0.92 < ratio <= 0.95: silence = 4
+        elif 0.55 <= ratio < 0.60 or 0.95 < ratio <= 0.97: silence = 3
+        else: silence = 1.5
 
-        cScore = round((filler + pause + pace + silence_balance + consistency) / 5)
+        cScore = round(((filler + pause + pace + silence) / 4), 1)
 
     if 0 <= cScore and cScore <= 5:
         prompt = (
