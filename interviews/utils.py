@@ -42,8 +42,9 @@ def analyze_speech_metrics(transcript, words_data):
     
     # Calculate speaking duration and total words
     if words_data:
-        first_word_time = words_data[0]['start']
-        last_word_time = words_data[-1]['end'] #-1 is the last element in python, who knew
+        # AssemblyAI returns timestamps in milliseconds, convert to seconds for calculations
+        first_word_time = words_data[0]['start'] / 1000.0
+        last_word_time = words_data[-1]['end'] / 1000.0 #-1 is the last element in python, who knew
         analysis['overall_metrics']['speaking_time'] = last_word_time - first_word_time
         analysis['overall_metrics']['total_words'] = len(words_data)
         
@@ -59,10 +60,13 @@ def analyze_speech_metrics(transcript, words_data):
     filler_frequency = {}
     
     for word in words_data:
-        word_text = word['text'].lower().strip()
+        word_text = word['text'].lower().strip().rstrip(',.!?;:')
         if word_text in filler_words:
             filler_count += 1
             filler_frequency[word_text] = filler_frequency.get(word_text, 0) + 1
+            print(f"FOUND FILLER: '{word['text']}' -> '{word_text}'")
+        else:
+            print(f"NOT FILLER: '{word['text']}' -> '{word_text}'")
     
     analysis['filler_words']['total_count'] = filler_count
     analysis['filler_words']['common_fillers'] = filler_frequency
@@ -77,14 +81,17 @@ def analyze_speech_metrics(transcript, words_data):
         current_word = words_data[i]
         previous_word = words_data[i-1]
         
-        pause_duration = current_word['start'] - previous_word['end']
+        # AssemblyAI returns timestamps in milliseconds, convert to seconds for calculations
+        pause_duration = (current_word['start'] - previous_word['end']) / 1000.0
         if pause_duration > 0.5:  # Pause longer than 0.5 seconds
             pauses.append({
                 'duration': pause_duration,
                 'position': i,
-                'start': previous_word['end'],
-                'end': current_word['start']
+                'start': previous_word['end'] / 1000.0,
+                'end': current_word['start'] / 1000.0
             })
+    
+
     
     analysis['pauses']['total_pauses'] = len(pauses)
     analysis['pauses']['pause_locations'] = pauses
@@ -92,10 +99,14 @@ def analyze_speech_metrics(transcript, words_data):
     if pauses:
         analysis['pauses']['average_pause_duration'] = sum(p['duration'] for p in pauses) / len(pauses)
         analysis['pauses']['long_pauses'] = len([p for p in pauses if p['duration'] > 2.0])
+    else:
+        analysis['pauses']['average_pause_duration'] = 0.0
+        analysis['pauses']['long_pauses'] = 0
     
     # Calculate silence time
-    if transcript.audio_duration and analysis['overall_metrics']['speaking_time']:
-        analysis['overall_metrics']['silence_time'] = transcript.audio_duration - analysis['overall_metrics']['speaking_time']
+    audio_duration = transcript.audio_duration
+    speaking_time = analysis['overall_metrics']['speaking_time']
+    analysis['overall_metrics']['silence_time'] = max(0, audio_duration - speaking_time)
     
     return analysis
 
@@ -216,22 +227,52 @@ def feedback(question, answer, category, speech_metrics = None, case_context = N
     cScore = -1
     if speech_metrics:
         f = speech_metrics['filler_words']['density'] * 100
-        filler = max(1, min(5, int((6 - min(f, 10) / 2))))
+        if f <= 5: filler = 5
+        elif f <= 10: filler = 4
+        elif f <= 15: filler = 3
+        elif f <= 20: filler = 2
+        else: filler = 1
+        print("Filler Word Count: ", speech_metrics['filler_words']['total_count'])
+        print("Total Words: ", speech_metrics['overall_metrics']['total_words'])
+        print(f"Filler: {filler}")
+        print(f"Filler density: {f}")
         
         lp = speech_metrics['pauses']['long_pauses']
         avg_p = speech_metrics['pauses']['average_pause_duration']
-        pause = 5 if lp <= 1 and avg_p < 1 else 3 if lp <= 3 else 1
+        if lp <= 2 and avg_p < 1.2: pause = 5
+        elif lp <= 4: pause = 4
+        elif lp <= 6: pause = 3
+        elif lp <= 8: pause = 2
+        else: pause = 1 
         
+        print(f"Pause: {pause}")
+        print(f"Long pauses: {lp}")
+        print(f"Average pause duration: {avg_p}")
+
         wpm = speech_metrics['speaking_pace']['words_per_minute']
-        pace = 5 if 120 <= wpm <= 150 else 4 if 100 <= wpm < 120 or 150 < wpm <= 170 else 2 if 80 <= wpm < 100 or 170 < wpm <= 190 else 1
-
-        st, si = speech_metrics['overall_metrics']['speaking_time'], speech_metrics['overall_metrics']['silence_time']
-        ratio = st/(st+si) if st+si > 0 else 0
-        silence_balance = 5 if 0.7 <= ratio <= 0.9 else 4 if 0.6 <= ratio < 0.7 or 0.9 < ratio <= 0.95 else 2
+        if 110 <= wpm <= 160: pace = 5
+        elif 90 <= wpm < 110 or 160 < wpm <= 180: pace = 4
+        elif 75 <= wpm < 90 or 180 < wpm <= 200: pace = 3
+        elif 60 <= wpm < 75 or 200 < wpm <= 220: pace = 2
+        else: pace = 1
         
-        consistency = 5 if speech_metrics['speaking_pace']['pace_consistency']=='consistent' else 1
+        print(f"Pace: {pace}")
+        print(f"Words per minute: {wpm}")
 
-        cScore = round((filler + pause + pace + silence_balance + consistency) / 5)
+        st = speech_metrics['overall_metrics']['speaking_time']
+        si = speech_metrics['overall_metrics']['silence_time']
+        ratio = st / (st + si) if st + si > 0 else 0
+        if 0.65 <= ratio <= 0.92: silence = 5
+        elif 0.60 <= ratio < 0.65 or 0.92 < ratio <= 0.95: silence = 4
+        elif 0.55 <= ratio < 0.60 or 0.95 < ratio <= 0.97: silence = 3
+        else: silence = 1.5
+        
+        print(f"Silence: {silence}")
+        print(f"Speaking time: {st}")
+        print(f"Silence time: {si}")
+        print(f"Ratio: {ratio}")
+
+        cScore = round(((filler + pause + pace + silence) / 4), 1)
 
     if 0 <= cScore and cScore <= 5:
         prompt = (
