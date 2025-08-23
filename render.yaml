@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: clubassist
+    env: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn clubassist.wsgi"
+    nginx:
+      clientMaxBodySize: 50m
