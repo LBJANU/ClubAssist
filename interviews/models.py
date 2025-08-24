@@ -65,8 +65,8 @@ class UserInterviewProgress(models.Model):
     time_taken_minutes = models.FloatField(null=True, blank=True)
     
     # User's response
-    user_answer = models.TextField(blank=True, null=True)
-    notes = models.TextField(blank=True, null=True, help_text="User's notes about their performance")
+    user_answer = models.TextField(blank=True, default="")
+    notes = models.TextField(blank=True, default="", help_text="User's notes about their performance")
     
     # Timestamps
     attempted_at = models.DateTimeField(null=True, blank=True)
