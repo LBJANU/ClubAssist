@@ -9,6 +9,7 @@ admin.site.register(ClubQuestionConnector)
 class InterviewQuestionAdmin(admin.ModelAdmin):
     list_display = ('title', 'question_text', 'difficulty', 'question_type', 'created_at', 'updated_at', 'is_active', 'sample_answer', 'hints', 'time_limit_minutes')
     readonly_fields = ('created_at', 'updated_at')
+    search_fields = ('title', 'question_text')
 
 @admin.register(UserInterviewProgress)
 class UserInterviewProgressAdmin(admin.ModelAdmin):
