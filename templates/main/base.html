@@ -16,6 +16,34 @@
             scroll-behavior: smooth;
         }
         
+        html {
+            font-size: 13px; /* Scales everything down for that 80% zoom feel */
+        }
+        
+        /* Constrain navigation width so logo/profile don't stretch to edges */
+        .nav-glass .container {
+            max-width: 80%; /* Percentage-based for better scaling across screen sizes */
+        }
+        
+        /* Static positioning for logo - stays in place regardless of zoom */
+        .nav-glass .logo-container {
+            position: absolute;
+            left: 50px;
+            top: 20px;
+        }
+        
+        /* Align content with navigation on specific pages - exclude homepage */
+        .content-page .max-w-7xl,
+        .content-page .max-w-6xl,
+        .content-page .max-w-5xl,
+        
+        /* More specific targeting for club list page */
+        .content-page.container {
+            max-width: 80%; /* Percentage-based for better scaling across screen sizes */
+        }
+        
+
+        
         :root {
             --michigan-blue: #00274C;
             --michigan-maize: #FFCB05;
