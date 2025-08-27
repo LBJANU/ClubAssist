@@ -306,8 +306,10 @@ def practice_question(request, club_id, question_id):
 
         try:
             fb = feedback(question.question_text, user_answer, club_category_input, speech_metrics, question.case_context)
+            messages.success(request, 'Feedback Successfully generated! Scroll down to see it.')
         except Exception as e:
             fb = f"Error generating feedback: {str(e)}"
+            messages.error(request, 'Error generating feedback. Please try again.')
         
         question_progress.user_answer = user_answer
         question_progress.completed = True

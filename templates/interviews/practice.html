@@ -145,10 +145,7 @@
                     <audio id="recordedAudio" controls class="w-full mb-4">
                         Your browser does not support the audio element.
                     </audio>
-                    <div class="flex justify-center space-x-3">
-                        <button id="downloadAudio" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600 transition-colors inline-flex items-center">
-                            <i class="fas fa-download mr-2"></i>Download Audio
-                        </button>
+                    <div class="flex justify-center">
                         <button id="useRecording" class="btn-michigan text-sm px-4 py-2 inline-flex items-center">
                             <i class="fas fa-check mr-2"></i>Use This Recording
                         </button>
@@ -178,7 +175,7 @@
                 <!-- Answer Textarea -->
                     <div>
                         <label for="user_answer" class="flex items-center text-lg font-bold text-michigan-blue mb-4">
-                        <i class="fas fa-comment mr-3"></i>Text Response (Will use text if no audio is provided)
+                        <i class="fas fa-comment mr-3"></i>Text Response (Will use if no audio is provided)
                     </label>
                     <textarea name="user_answer" id="user_answer" rows="8" 
                         class="form-input w-full bg-white/80 text-gray-800 placeholder-gray-500" 
@@ -211,7 +208,7 @@
                                 <div class="w-16 h-16 bg-michigan-gradient rounded-full flex items-center justify-center mx-auto mb-4">
                                     <i class="fas fa-cloud-upload-alt text-white text-2xl"></i>
                                 </div>
-                                <span id="file-upload-text" class="text-lg font-semibold text-michigan-blue">Choose audio file or drag and drop</span>
+                                <span id="file-upload-text" class="text-lg font-semibold text-michigan-blue">Use Voice Recording Above</span>
                                 <p class="text-sm text-gray-600 mt-2">Supports all audio formats • Max 75 seconds</p>
                             </div>
                         </div>
@@ -477,7 +474,6 @@ document.getElementById('response_audio').addEventListener('change', function(e)
 // Event listeners
 document.getElementById('startRecording').addEventListener('click', startRecording);
 document.getElementById('stopRecording').addEventListener('click', stopRecording);
-document.getElementById('downloadAudio').addEventListener('click', downloadAudio);
 document.getElementById('useRecording').addEventListener('click', useRecording);
 
 let loadingMessages = [
