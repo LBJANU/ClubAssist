@@ -45,10 +45,11 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    # Get all clubs the user is interested in
+    # Get all clubs the user is interested in (excluding hidden clubs)
     interested_clubs = ClubUserConnector.objects.filter(
         user=request.user,
-        interested=True
+        interested=True,
+        club__hidden=False
     ).select_related('club')
 
     prep_clubs_count = ClubUserConnector.objects.filter(

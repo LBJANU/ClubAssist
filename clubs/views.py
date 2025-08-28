@@ -9,7 +9,7 @@ from .models import Club, ClubUserConnector
 def club_list(request):
     #ALl passed through for the initial load
     club_categories = Club.CATEGORY_CHOICES
-    clubs = Club.objects.all().order_by('name')
+    clubs = Club.objects.all().order_by('name').filter(hidden=False)
     
     user_interests = {}
     if request.user.is_authenticated:
@@ -39,7 +39,7 @@ def search_clubs(request):
     query = request.GET.get('q', '')
     category = request.GET.get('category', '')
     
-    clubs = Club.objects.all()
+    clubs = Club.objects.all().filter(hidden=False)
     
     if query:
         clubs = clubs.filter(name__icontains=query)
