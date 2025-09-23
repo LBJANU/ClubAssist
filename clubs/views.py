@@ -4,7 +4,6 @@ from django.db.models import F
 from django.contrib.auth.decorators import login_required
 from .models import Club, ClubUserConnector
 
-# Create your views here.
 @login_required
 def club_list(request):
     #ALl passed through for the initial load
@@ -75,13 +74,10 @@ def toggle_interest(request, club_id):
     # Try to get existing object first
     try:
         club_interested = ClubUserConnector.objects.get(club=club, user=request.user)
-        # Toggle existing value
         new_value = not club_interested.interested
     except ClubUserConnector.DoesNotExist:
-        # Create new with default True
         new_value = True
     
-    # Use update_or_create with the calculated value
     club_interested, created = ClubUserConnector.objects.update_or_create(
         club=club,
         user=request.user,

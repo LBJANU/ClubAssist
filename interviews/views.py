@@ -9,18 +9,15 @@ import random
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-# Create your views here.
 @login_required
 def club_prep(request, club_id):
     club = get_object_or_404(Club, id=club_id)
     
-    # Get filter parameters
     difficulty = request.GET.get('difficulty', '')
     question_type = request.GET.get('question_type', '')
     name_search = request.GET.get('name_search', '')
     status = request.GET.get('status', '')
     
-    # Get all questions for this club
     questions = InterviewQuestion.objects.filter(club_connections__club=club)
     
     # Apply filters
@@ -31,7 +28,6 @@ def club_prep(request, club_id):
     if name_search:
         questions = questions.filter(title__icontains=name_search)
     
-    # Get user's progress for status filtering
     user_progress = UserInterviewProgress.objects.filter(
         user=request.user,
         question__in=questions,
@@ -52,7 +48,7 @@ def club_prep(request, club_id):
 
     # Pagination setup
     page = request.GET.get('page', 1)
-    paginator = Paginator(questions, 30)  # 10 questions per page
+    paginator = Paginator(questions, 30)  # 30 questions per page seems valid
     try:
         questions_page = paginator.page(page)
     except PageNotAnInteger:
@@ -60,24 +56,20 @@ def club_prep(request, club_id):
     except EmptyPage:
         questions_page = paginator.page(paginator.num_pages)
 
-    #Update prep count for club
     club_prep = ClubUserConnector.objects.get(club=club, user=request.user)
     club_prep.started_prep = True
     club_prep.save()
     
-    # Get user's progress on these questions
     user_progress = UserInterviewProgress.objects.filter(
         user=request.user,
         question__in=questions,
         club=club
     )
     
-    # Calculate progress stats
     total_questions = questions.count()
     attempted_questions = user_progress.filter(attempted=True).count()
     completed_questions = user_progress.filter(completed=True).count()
     
-    # Get user's recent sessions for this club
     recent_sessions = InterviewSession.objects.filter(
         user=request.user,
         club=club
@@ -101,7 +93,6 @@ def club_prep(request, club_id):
         }
     }
 
-    # HTMX support: return only the questions list partial if HX-Request header is present
     if request.headers.get('HX-Request') == 'true':
         return render(request, 'interviews/_questions_list.html', context)
 
@@ -115,7 +106,6 @@ def start_practice_session(request, club_id):
     # Get all questions for this club
     all_questions = InterviewQuestion.objects.filter(club_connections__club=club)
     
-    # Get questions the user hasn't attempted yet
     attempted_question_ids = UserInterviewProgress.objects.filter(
         user=request.user,
         question__in=all_questions,
@@ -134,7 +124,6 @@ def start_practice_session(request, club_id):
         messages.warning(request, 'No unattempted questions available for this club.')
         return redirect('clubs:prep', club_id=club_id)
     
-    # Create the session
     session = InterviewSession.objects.create(
         user=request.user,
         club=club,
@@ -158,7 +147,6 @@ def practice_session(request, club_id, session_id):
         messages.error(request, 'No questions found in this session.')
         return redirect('clubs:prep', club_id=club_id)
 
-    # Get or create progress for current question
     question_progress, created = UserInterviewProgress.objects.get_or_create(
         user=request.user,
         question=current_question,
@@ -174,7 +162,6 @@ def practice_session(request, club_id, session_id):
             notes = request.POST.get('notes', '').strip()
             speech_metrics = None
 
-            # Handle audio file processing
             if 'response_audio' in request.FILES:
                 audio_file = request.FILES['response_audio']
                 transcription_result = transcribe_audio_file(audio_file)
@@ -212,26 +199,23 @@ def practice_session(request, club_id, session_id):
 
             messages.success(request, 'Answer saved!')
 
-            # Move to next question automatically
+            # Move to next question automatic
             if session.can_move_to_next():
                 session.current_question_index += 1
                 session.save()
                 return redirect('clubs:practice_session', club_id=club_id, session_id=session.id)
             else:
-                # Session completed
                 session.is_completed = True
                 session.completed_at = timezone.now()
                 session.save()
                 messages.success(request, 'Session completed!')
                 return redirect('clubs:practice_session_summary', session_id=session.id)
 
-    # Reload current question after navigation
     current_question = session.get_current_question()
     if not current_question:
         messages.error(request, 'No questions found in this session.')
         return redirect('clubs:prep', club_id=club_id)
 
-    # Get or create progress for current question
     question_progress, created = UserInterviewProgress.objects.get_or_create(
         user=request.user,
         question=current_question,
@@ -239,7 +223,6 @@ def practice_session(request, club_id, session_id):
         defaults={'attempted': True}
     )
 
-    # Get all questions in session for navigation
     session_questions = []
     for question_id in session.questions:
         try:
@@ -277,15 +260,12 @@ def practice_question(request, club_id, question_id):
         notes = request.POST.get('notes', '').strip()
         speech_metrics = None
         
-        # Handle audio file processing (if provided)
         if 'response_audio' in request.FILES:
             audio_file = request.FILES['response_audio']
             
-            # Transcribe the audio using AssemblyAI
             transcription_result = transcribe_audio_file(audio_file)
             
             if transcription_result['success']:
-                # Use the transcribed text as the answer
                 transcribed_text = transcription_result['text'].strip()
                 speech_metrics = transcription_result['analysis']
                 if transcribed_text:
