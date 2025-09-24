@@ -40,7 +40,6 @@ def analyze_speech_metrics(transcript, words_data):
     if not words_data:
         return analysis
     
-    # Calculate speaking duration and total words
     if words_data:
         # AssemblyAI returns timestamps in milliseconds, convert to seconds for calculations
         first_word_time = words_data[0]['start'] / 1000.0
@@ -54,7 +53,6 @@ def analyze_speech_metrics(transcript, words_data):
             analysis['speaking_pace']['words_per_minute'] = len(words_data) / speaking_minutes
             analysis['speaking_pace']['speaking_duration'] = analysis['overall_metrics']['speaking_time']
     
-    # Analyze filler words from disfluencies
     filler_words = ['um', 'uh', 'like', 'you know', 'i mean', 'basically', 'actually', 'literally']
     filler_count = 0
     filler_frequency = {}
@@ -71,19 +69,16 @@ def analyze_speech_metrics(transcript, words_data):
     analysis['filler_words']['total_count'] = filler_count
     analysis['filler_words']['common_fillers'] = filler_frequency
     
-    # Calculate filler word density
     if analysis['overall_metrics']['total_words'] > 0:
         analysis['filler_words']['density'] = filler_count / analysis['overall_metrics']['total_words']
     
-    # Analyze pauses between words
     pauses = []
     for i in range(1, len(words_data)):
         current_word = words_data[i]
         previous_word = words_data[i-1]
         
-        # AssemblyAI returns timestamps in milliseconds, convert to seconds for calculations
         pause_duration = (current_word['start'] - previous_word['end']) / 1000.0
-        if pause_duration > 0.5:  # Pause longer than 0.5 seconds
+        if pause_duration > 0.5: 
             pauses.append({
                 'duration': pause_duration,
                 'position': i,
@@ -103,7 +98,6 @@ def analyze_speech_metrics(transcript, words_data):
         analysis['pauses']['average_pause_duration'] = 0.0
         analysis['pauses']['long_pauses'] = 0
     
-    # Calculate silence time
     audio_duration = transcript.audio_duration
     speaking_time = analysis['overall_metrics']['speaking_time']
     analysis['overall_metrics']['silence_time'] = max(0, audio_duration - speaking_time)
@@ -139,9 +133,8 @@ def transcribe_audio_file(audio_file):
                 temp_file.write(chunk)
             temp_file_path = temp_file.name
         
-        # Configure transcription
         config = aai.TranscriptionConfig(
-            speech_model=aai.SpeechModel.best, # best defaulted, but lowk might change if expensive
+            speech_model=aai.SpeechModel.best, 
             language_code="en",
             disfluencies=True,
         )
@@ -150,10 +143,8 @@ def transcribe_audio_file(audio_file):
         transcriber = aai.Transcriber(config=config)
         transcript = transcriber.transcribe(temp_file_path)
         
-        # Clean up temporary file (delete ish)
         os.unlink(temp_file_path)
         
-        # Check for transcription errors
         if transcript.status == "error":
             return {
                 'success': False,
@@ -162,7 +153,6 @@ def transcribe_audio_file(audio_file):
                 'analysis': {}
             }
         
-        # Extract rich data from the transcript
         words_data = []
         if hasattr(transcript, 'words') and transcript.words:
             for word in transcript.words:
@@ -175,10 +165,8 @@ def transcribe_audio_file(audio_file):
                 })
         
         
-        # Perform speech analysis
         speech_analysis = analyze_speech_metrics(transcript, words_data)
         
-        # Return successful transcription with rich data
         return {
             'success': True,
             'text': transcript.text,
@@ -218,7 +206,7 @@ def feedback(question, answer, category, speech_metrics = None, case_context = N
         "Content-Type": "application/json"
     }
 
-    # Build context section conditionally
+    # Build context section conditionally cuz only on case study
     context_section = ""
     if case_context and case_context.strip():
         context_section = f"\nCase Context:\n{case_context.strip()}\n"
@@ -324,7 +312,7 @@ def feedback(question, answer, category, speech_metrics = None, case_context = N
         "max_tokens": 600
     }
 
-    # Debug: You can check out the payload being sent to LLM
+    # Debug: You can check out the payload being sent to LLM. 
     print("=" * 80)
     print("LLM PAYLOAD DEBUG:")
     print("=" * 80)
@@ -341,7 +329,6 @@ def feedback(question, answer, category, speech_metrics = None, case_context = N
     content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
     content = re.sub(r"</?think>", "", content)
 
-    # Parse the JSON response
     try:
         import json
         parsed_response = json.loads(content.strip())
