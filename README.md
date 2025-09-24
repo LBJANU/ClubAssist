@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ```
 SECRET_KEY=your_django_secret_key
 DEBUG=True
-OPENAI_API_KEY=your_openai_api_key
+QWEN_API_KEY=your_qwen_api_key
 ```
 
 4. Run migrations:
